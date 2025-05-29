@@ -1,0 +1,22 @@
+{
+    "name": "mohachi/command-line",
+    "description": "PHP Command line unitlity",
+    "type": "lib",
+    "require-dev": {
+        "symfony/var-dumper": "^7.3",
+        "phpunit/phpunit": "^12.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mohachi\\CommandLine\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "mohachi",
+            "email": "hachiassali15@gmail.com"
+        }
+    ],
+    "require": {}
+}
