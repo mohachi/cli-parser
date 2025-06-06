@@ -155,7 +155,7 @@ class OptionsParserTest extends TestCase
         $tokens->push($arg1);
         $tokens->push($id2);
         $opt = new OptionParser("num", $id1);
-        $opt->arguments->append("value", fn($v) => is_numeric($v));
+        $opt->arguments->append("value", fn(string $v) => is_numeric($v));
         $parser = new OptionsParser;
         $parser->append($opt);
         $parser->append(new OptionParser("opt", $id2));

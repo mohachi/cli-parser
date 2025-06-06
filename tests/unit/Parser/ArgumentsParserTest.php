@@ -68,7 +68,7 @@ class ArgumentsParserTest extends TestCase
         $arg = new ArgumentNode("26");
         $tokens->push($arg);
         $parser = new ArgumentsParser;
-        $parser->append("num", fn($v) => is_numeric($v));
+        $parser->append("num", fn(string $v) => is_numeric($v));
         
         $node = $parser->parse($tokens);
         

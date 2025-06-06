@@ -73,7 +73,7 @@ class OptionParserTest extends TestCase
         $tokens->push($id);
         $tokens->push($arg);
         $parser = new OptionParser("number", $id);
-        $parser->arguments->append("arg", fn($v) => is_numeric($v));
+        $parser->arguments->append("arg", fn(string $v) => is_numeric($v));
         
         $node = $parser->parse($tokens);
         
