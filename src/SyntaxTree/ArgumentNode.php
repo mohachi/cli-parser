@@ -4,17 +4,11 @@ namespace Mohachi\CommandLine\SyntaxTree;
 
 class ArgumentNode implements LeafNodeInterface
 {
+    use LeafNodeTrait;
     
-    public string $value;
-    
-    public function getValue(): string
+    public function __construct(protected string $value)
     {
-        return $this->value;
-    }
-    
-    public function setValue(string $value)
-    {
-        $this->value = $value;
+        
     }
     
 }

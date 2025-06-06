@@ -2,13 +2,18 @@
 
 namespace Mohachi\CommandLine\SyntaxTree;
 
-class OptionsNode implements NodeInterface
+use ArrayAccess;
+use Countable;
+use Iterator;
+
+class OptionsNode implements NodeInterface, ArrayAccess, Iterator, Countable
 {
+    use IteratorTrait;
     
     /**
      * @var OptionNode[] $nodes
      */
-    public array $nodes = [];
+    private array $nodes = [];
     
     public function append(OptionNode $node)
     {

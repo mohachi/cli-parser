@@ -2,14 +2,12 @@
 
 namespace Mohachi\CommandLine\SyntaxTree;
 
-use Mohachi\CommandLine\SyntaxTree\Identifier\AbstractIdentifierNode;
-
-class OptionNode implements NodeInterface
+readonly class OptionNode implements NodeInterface
 {
     
     public function __construct(
         public string $name,
-        public AbstractIdentifierNode $id,
+        public IdentifierNodeInterface $id,
         public ArgumentsNode $arguments
     )
     {

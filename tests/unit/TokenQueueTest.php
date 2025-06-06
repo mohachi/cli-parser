@@ -24,13 +24,11 @@ class TokenQueueTest extends TestCase
     #[Test]
     public function get_head_of_non_empty_queue()
     {
-        $token = new ArgumentNode;
-        $token->setValue("value");
+        $arg = new ArgumentNode("value");
         $tokens = new TokenQueue;
-        $tokens->push($token);
+        $tokens->push($arg);
         
-        $this->assertSame($token, $tokens->getHead());
-        $this->assertSame("value", $tokens->getHead()->getValue());
+        $this->assertSame($arg, $tokens->getHead());
     }
     
     /* METHOD: pull */
@@ -46,13 +44,11 @@ class TokenQueueTest extends TestCase
     #[Test]
     public function pull_from_non_empty_queue()
     {
-        $token = new ArgumentNode;
-        $token->setValue("value");
+        $token = new ArgumentNode("value");
         $tokens = new TokenQueue;
         $tokens->push($token);
         
         $this->assertSame($token, $tokens->getHead());
-        $this->assertSame("value", $tokens->getHead()->getValue());
     }
     
 }

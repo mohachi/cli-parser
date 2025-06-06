@@ -1,15 +1,14 @@
 <?php
 
-namespace Mohachi\CommandLine\SyntaxTree\Identifier;
+namespace Mohachi\CommandLine\SyntaxTree;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Override;
 
-class LongIdentifierNode extends AbstractIdentifierNode
+class LongIdentifierNode implements IdentifierNodeInterface
 {
+    use LeafNodeTrait;
     
-    #[Override]
-    public function setValue(string $value)
+    public function __construct(protected string $value)
     {
         if( "" == $value )
         {

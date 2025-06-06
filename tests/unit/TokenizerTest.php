@@ -3,9 +3,10 @@
 use Mohachi\CommandLine\Exception\DomainException;
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\AbstractIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\IdentifierNodeInterface;
+use Mohachi\CommandLine\SyntaxTree\LeafNodeTrait;
 use Mohachi\CommandLine\Tokenizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,9 +25,11 @@ class TokenizerTest extends TestCase
         
         $this->expectException(DomainException::class);
         
-        $tokenizer->appendIdentifier(new class ("id") extends AbstractIdentifierNode
+        $tokenizer->appendIdentifier(new class ("id") implements IdentifierNodeInterface
         {
-            public function setValue(string $value)
+            use LeafNodeTrait;
+            
+            public function __construct(string $value)
             {
                 $this->value = $value;
             }
@@ -66,54 +69,54 @@ class TokenizerTest extends TestCase
     #[Test]
     public function tokenize_unsatisfied_literal_id()
     {
+        $cli = ["unexpected"];
         $tokenizer = new Tokenizer;
-        $subjects = ["unexpected"];
         $tokenizer->appendIdentifier(new LiteralIdentifierNode("expected"));
         
-        $tokens = $tokenizer->tokenize($subjects);
+        $tokens = $tokenizer->tokenize($cli);
         
+        $this->assertEquals($cli[0], $tokens->getHead());
         $this->assertInstanceOf(ArgumentNode::class, $tokens->getHead());
-        $this->assertEquals($subjects[0], $tokens->getHead()->getValue());
     }
     
     #[Test]
     public function tokenize_unsatisfied_long_id()
     {
+        $cli = ["--unexpected"];
         $tokenizer = new Tokenizer;
-        $subjects = ["--unexpected"];
         $tokenizer->appendIdentifier(new LongIdentifierNode("expected"));
         
-        $tokens = $tokenizer->tokenize($subjects);
+        $tokens = $tokenizer->tokenize($cli);
         
+        $this->assertEquals($cli[0], $tokens->getHead());
         $this->assertInstanceOf(ArgumentNode::class, $tokens->getHead());
-        $this->assertEquals($subjects[0], $tokens->getHead()->getValue());
     }
     
     #[Test]
     public function tokenize_satisfied_literal_id()
     {
-        $subjects = ["expected"];
+        $cli = ["expected"];
         $tokenizer = new Tokenizer;
         $id = new LiteralIdentifierNode("expected");
         $tokenizer->appendIdentifier($id);
         
-        $tokens = $tokenizer->tokenize($subjects);
+        $tokens = $tokenizer->tokenize($cli);
         
-        $this->assertEquals($subjects[0], $tokens->getHead()->getValue());
+        $this->assertEquals($cli[0], $tokens->getHead());
         $this->assertInstanceOf(LiteralIdentifierNode::class, $tokens->getHead());
     }
     
     #[Test]
     public function tokenize_satisfied_long_id()
     {
-        $subjects = ["--expected"];
+        $cli = ["--expected"];
         $tokenizer = new Tokenizer;
         $id = new LongIdentifierNode("expected");
         $tokenizer->appendIdentifier($id);
         
-        $tokens = $tokenizer->tokenize($subjects);
+        $tokens = $tokenizer->tokenize($cli);
         
-        $this->assertEquals($subjects[0], $tokens->getHead()->getValue());
+        $this->assertEquals($cli[0], $tokens->getHead());
         $this->assertInstanceOf(LongIdentifierNode::class, $tokens->getHead());
     }
     

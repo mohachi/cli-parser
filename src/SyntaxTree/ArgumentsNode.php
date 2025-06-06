@@ -2,13 +2,18 @@
 
 namespace Mohachi\CommandLine\SyntaxTree;
 
-class ArgumentsNode implements NodeInterface
+use ArrayAccess;
+use Countable;
+use Iterator;
+
+class ArgumentsNode implements NodeInterface, ArrayAccess, Iterator, Countable
 {
+    use IteratorTrait;
     
     /**
      * @var ArgumentNode[] $nodes
      */
-    public array $nodes = [];
+    private array $nodes = [];
     
     public function append(string $name, ArgumentNode $node)
     {

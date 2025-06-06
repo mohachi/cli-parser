@@ -41,22 +41,18 @@ class ArgumentsParserTest extends TestCase
     public function parse_against_empty_argument_list()
     {
         $tokens = new TokenQueue;
-        $arg = new ArgumentNode;
-        $arg->setValue("cmd");
-        $tokens->push($arg);
+        $tokens->push(new ArgumentNode("cmd"));
         
         $node = (new ArgumentsParser)->parse($tokens);
         
-        $this->assertEmpty($node->nodes);
+        $this->assertEmpty($node);
     }
     
     #[Test]
     public function parse_unsatisfied_argument()
     {
         $tokens = new TokenQueue;
-        $arg = new ArgumentNode;
-        $arg->setValue("unexpected");
-        $tokens->push($arg);
+        $tokens->push(new ArgumentNode("unexpected"));
         $parser = new ArgumentsParser;
         $parser->append("num", fn($v) => is_numeric($v));
         
@@ -69,16 +65,15 @@ class ArgumentsParserTest extends TestCase
     public function parse_satisfied_argument()
     {
         $tokens = new TokenQueue;
-        $arg = new ArgumentNode;
-        $arg->setValue("26");
+        $arg = new ArgumentNode("26");
         $tokens->push($arg);
         $parser = new ArgumentsParser;
         $parser->append("num", fn($v) => is_numeric($v));
         
         $node = $parser->parse($tokens);
         
-        $this->assertContains($arg, $node->nodes);
-        $this->assertArrayHasKey("num", $node->nodes);
+        $this->assertContains($arg, $node);
+        $this->assertArrayHasKey("num", $node);
     }
     
 }

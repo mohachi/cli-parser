@@ -4,8 +4,8 @@ use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -52,8 +52,7 @@ class OptionParserTest extends TestCase
     public function parse_unsatisfied_argument()
     {
         $id = new LongIdentifierNode("num");
-        $arg = new ArgumentNode;
-        $arg->setValue("unexpected");
+        $arg = new ArgumentNode("unexpected");
         $tokens = new TokenQueue;
         $tokens->push($id);
         $tokens->push($arg);
@@ -69,8 +68,7 @@ class OptionParserTest extends TestCase
     public function parse_satisfied_option()
     {
         $id = new LongIdentifierNode("num");
-        $arg = new ArgumentNode;
-        $arg->setValue("12");
+        $arg = new ArgumentNode("12");
         $tokens = new TokenQueue;
         $tokens->push($id);
         $tokens->push($arg);
@@ -80,8 +78,8 @@ class OptionParserTest extends TestCase
         $node = $parser->parse($tokens);
         
         $this->assertSame($id, $node->id);
-        $this->assertContains($arg, $node->arguments->nodes);
-        $this->assertArrayHasKey("arg", $node->arguments->nodes);
+        $this->assertContains($arg, $node->arguments);
+        $this->assertArrayHasKey("arg", $node->arguments);
     }
     
 }

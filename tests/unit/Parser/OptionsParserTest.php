@@ -6,8 +6,8 @@ use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Parser\OptionsParser;
 use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -56,7 +56,7 @@ class OptionsParserTest extends TestCase
         
         $node = $parser->parse(new TokenQueue);
         
-        $this->assertEmpty($node->nodes);
+        $this->assertEmpty($node);
     }
     
     #[Test]
@@ -68,7 +68,7 @@ class OptionsParserTest extends TestCase
         
         $node = (new OptionsParser())->parse($tokens);
         
-        $this->assertEmpty($node->nodes);
+        $this->assertEmpty($node);
         $this->assertSame($id, $tokens->getHead());
     }
     
@@ -109,7 +109,7 @@ class OptionsParserTest extends TestCase
         $node = $parser->parse($tokens);
         
         $this->assertSame($id, $tokens->getHead());
-        $this->assertEquals("opt", $node->nodes[0]->name);
+        $this->assertEquals("opt", $node[0]->name);
     }
     
     #[Test]
@@ -123,7 +123,7 @@ class OptionsParserTest extends TestCase
         
         $node = $parser->parse($tokens);
         
-        $this->assertEmpty($node->nodes);
+        $this->assertEmpty($node);
         $this->assertSame($id, $tokens->getHead());
     }
     
@@ -147,8 +147,7 @@ class OptionsParserTest extends TestCase
     public function parse_satisfied_option()
     {
         $id1 = new LongIdentifierNode("num");
-        $arg1 = new ArgumentNode;
-        $arg1->setValue("12");
+        $arg1 = new ArgumentNode("12");
         $id2 = new LongIdentifierNode("opt");
         $tokens = new TokenQueue;
         $tokens->push($id2);
@@ -163,10 +162,10 @@ class OptionsParserTest extends TestCase
         
         $node = $parser->parse($tokens);
         
-        $this->assertCount(3, $node->nodes);
-        $this->assertEquals("opt", $node->nodes[0]->name);
-        $this->assertEquals("num", $node->nodes[1]->name);
-        $this->assertEquals("opt", $node->nodes[2]->name);
+        $this->assertCount(3, $node);
+        $this->assertEquals("opt", $node[0]->name);
+        $this->assertEquals("num", $node[1]->name);
+        $this->assertEquals("opt", $node[2]->name);
     }
     
 }

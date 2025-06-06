@@ -34,7 +34,7 @@ class ArgumentsParser implements ParserInterface
                 throw new ParserException();
             }
             
-            if( ! call_user_func($criterion, $tokens->getHead()->getValue()) )
+            if( ! call_user_func($criterion, $tokens->getHead()) )
             {
                 throw new ParserException();
             }

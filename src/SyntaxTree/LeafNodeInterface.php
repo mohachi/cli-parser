@@ -2,10 +2,9 @@
 
 namespace Mohachi\CommandLine\SyntaxTree;
 
-interface LeafNodeInterface extends NodeInterface
+use Stringable;
+
+interface LeafNodeInterface extends NodeInterface, Stringable
 {
-    
-    public function getValue(): string;
-    public function setValue(string $value);
-    
+
 }

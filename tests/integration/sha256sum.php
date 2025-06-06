@@ -2,8 +2,8 @@
 
 use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Parser\OptionParser;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
 use Mohachi\CommandLine\Tokenizer;
 
 require_once __DIR__ . "/../../vendor/autoload.php";

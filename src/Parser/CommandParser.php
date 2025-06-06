@@ -4,7 +4,7 @@ namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\SyntaxTree\CommandNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\AbstractIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\IdentifierNodeInterface;
 use Mohachi\CommandLine\TokenQueue;
 
 class CommandParser implements ParserInterface
@@ -14,7 +14,7 @@ class CommandParser implements ParserInterface
     readonly OptionsParser $options;
     readonly ArgumentsParser $arguments;
     
-    public function __construct(private string $name, AbstractIdentifierNode $id)
+    public function __construct(private string $name, IdentifierNodeInterface $id)
     {
         if( "" == $name )
         {

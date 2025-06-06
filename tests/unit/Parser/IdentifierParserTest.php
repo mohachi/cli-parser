@@ -3,8 +3,8 @@
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\Parser\IdentifierParser;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

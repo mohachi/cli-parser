@@ -4,8 +4,8 @@ use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -68,8 +68,7 @@ class CommandParserTest extends TestCase
     {
         $id1 = new LiteralIdentifierNode("cmd");
         $id2 = new LongIdentifierNode("opt");
-        $arg = new ArgumentNode;
-        $arg->setValue("value");
+        $arg = new ArgumentNode("value");
         $tokens = new TokenQueue;
         $tokens->push($id1);
         $tokens->push($id2);
@@ -81,9 +80,9 @@ class CommandParserTest extends TestCase
         $node = $parser->parse($tokens);
         
         $this->assertSame($id1, $node->id);
-        $this->assertCount(1, $node->options->nodes);
-        $this->assertContains($arg, $node->arguments->nodes);
-        $this->assertEquals("opt", $node->options->nodes[0]->name);
+        $this->assertCount(1, $node->options);
+        $this->assertContains($arg, $node->arguments);
+        $this->assertEquals("opt", $node->options[0]->name);
     }
     
 }

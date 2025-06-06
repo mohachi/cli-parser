@@ -4,10 +4,11 @@ namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\DomainException;
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
+use Mohachi\CommandLine\SyntaxTree\AbstractLeafNode;
 use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\AbstractIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\Identifier\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
+use Mohachi\CommandLine\SyntaxTree\IdentifierNodeInterface;
 
 class Tokenizer
 {
@@ -22,7 +23,7 @@ class Tokenizer
      */
     private array $literal = [];
     
-    public function appendIdentifier(AbstractIdentifierNode $id)
+    public function appendIdentifier(IdentifierNodeInterface $id)
     {
         match( get_class($id) )
         {
@@ -87,13 +88,13 @@ class Tokenizer
         $id = null;
         
         /**
-         * @var AbstractIdentifierNode $id
+         * @var IdentifierNodeInterface $id
          */
         foreach( $this->{$from} as $id )
         {
-            if( str_starts_with($subject, $id->getValue()) )
+            if( str_starts_with($subject, $id) )
             {
-                $subject = substr($subject, strlen($id->getValue()));
+                $subject = substr($subject, strlen($id));
                 break;
             }
         }
@@ -112,9 +113,7 @@ class Tokenizer
     
     private function tokenizeArgument(string $subject): array
     {
-        $node = new ArgumentNode;
-        $node->setValue($subject);
-        return [$node];
+        return [new ArgumentNode($subject)];
     }
     
 }
