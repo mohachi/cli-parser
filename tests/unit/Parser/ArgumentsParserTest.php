@@ -4,7 +4,7 @@ use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\Parser\ArgumentsParser;
-use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
+use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -40,40 +40,40 @@ class ArgumentsParserTest extends TestCase
     #[Test]
     public function parse_against_empty_argument_list()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new ArgumentNode("cmd"));
+        $queue = new TokenQueue;
+        $queue->enqueue(new ArgumentToken("cmd"));
         
-        $node = (new ArgumentsParser)->parse($tokens);
+        $arguments = (new ArgumentsParser)->parse($queue);
         
-        $this->assertEmpty($node);
+        $this->assertObjectNotHasProperty("cmd", $arguments);
     }
     
     #[Test]
     public function parse_unsatisfied_argument()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new ArgumentNode("unexpected"));
+        $queue = new TokenQueue;
+        $queue->enqueue(new ArgumentToken("unexpected"));
         $parser = new ArgumentsParser;
         $parser->append("num", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_satisfied_argument()
     {
-        $tokens = new TokenQueue;
-        $arg = new ArgumentNode("26");
-        $tokens->push($arg);
+        $queue = new TokenQueue;
+        $arg = new ArgumentToken("26");
+        $queue->enqueue($arg);
         $parser = new ArgumentsParser;
-        $parser->append("num", fn(string $v) => is_numeric($v));
+        $parser->append("num", fn($v) => is_numeric($v));
         
-        $node = $parser->parse($tokens);
+        $arguments = $parser->parse($queue);
         
-        $this->assertContains($arg, $node);
-        $this->assertArrayHasKey("num", $node);
+        $this->assertObjectHasProperty("num", $arguments);
+        $this->assertEquals($arguments->num, 26);
     }
     
 }

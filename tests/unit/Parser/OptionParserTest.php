@@ -3,9 +3,9 @@
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Parser\OptionParser;
-use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
+use Mohachi\CommandLine\Token\ArgumentToken;
+use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,7 +22,7 @@ class OptionParserTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new OptionParser("", new LongIdentifierNode("opt"));
+        new OptionParser("");
     }
     
     /* METHOD: parse */
@@ -30,56 +30,58 @@ class OptionParserTest extends TestCase
     #[Test]
     public function parse_empty_stack()
     {
+        $parser = new OptionParser("opt");
+        $parser->id->append(new LongIdentifierToken("opt"));
+        
         $this->expectException(UnderflowException::class);
         
-        (new OptionParser("opt", new LongIdentifierNode("opt")))
-            ->parse(new TokenQueue);
+        $parser->parse(new TokenQueue);
     }
     
     #[Test]
-    public function parse_unsatisfied_id()
+    public function parse_unsatisfied_id_parser()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new LiteralIdentifierNode("unexpected"));
+        $queue = new TokenQueue;
+        $parser = new OptionParser("opt");
+        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
+        $parser->id->append(new LiteralIdentifierToken("expected"));
         
         $this->expectException(ParserException::class);
         
-        (new OptionParser("opt", new LiteralIdentifierNode("expected")))
-            ->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
-    public function parse_unsatisfied_argument()
+    public function parse_unsatisfied_argument_parser()
     {
-        $id = new LongIdentifierNode("num");
-        $arg = new ArgumentNode("unexpected");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
-        $tokens->push($arg);
-        $parser = new OptionParser("number", $id);
+        $id = new LongIdentifierToken("num");
+        $queue = new TokenQueue;
+        $queue->enqueue($id);
+        $queue->enqueue(new ArgumentToken("unexpected"));
+        $parser = new OptionParser("number");
+        $parser->id->append($id);
         $parser->arguments->append("arg", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_satisfied_option()
     {
-        $id = new LongIdentifierNode("num");
-        $arg = new ArgumentNode("12");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
-        $tokens->push($arg);
-        $parser = new OptionParser("number", $id);
+        $id = new LongIdentifierToken("num");
+        $queue = new TokenQueue;
+        $queue->enqueue($id);
+        $queue->enqueue(new ArgumentToken("12"));
+        $parser = new OptionParser("number");
+        $parser->id->append($id);
         $parser->arguments->append("arg", fn(string $v) => is_numeric($v));
         
-        $node = $parser->parse($tokens);
+        $option = $parser->parse($queue);
         
-        $this->assertSame($id, $node->id);
-        $this->assertContains($arg, $node->arguments);
-        $this->assertArrayHasKey("arg", $node->arguments);
+        $this->assertEquals($id, $option->id);
+        $this->assertEquals((object) ["arg" => "12"], $option->arguments);
     }
     
 }

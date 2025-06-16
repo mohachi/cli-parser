@@ -3,7 +3,6 @@
 namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\SyntaxTree\OptionsNode;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\TokenQueue;
@@ -35,10 +34,10 @@ class OptionsParser implements ParserInterface
         ];
     }
     
-    public function parse(TokenQueue $tokens): OptionsNode
+    public function parse(TokenQueue $queue): array
     {
+        $options = [];
         $rest = $this->parsers;
-        $node = new OptionsNode;
         
         do
         {
@@ -51,7 +50,7 @@ class OptionsParser implements ParserInterface
             {
                 try
                 {
-                    $node->append($parser->parse($tokens));
+                    $options[] = $parser->parse($queue);
                     $min--;
                     $max--;
                     $parsed = true;
@@ -84,7 +83,7 @@ class OptionsParser implements ParserInterface
             }
         }
         
-        return $node;
+        return $options;
     }
     
 }

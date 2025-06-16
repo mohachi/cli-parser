@@ -4,9 +4,9 @@ namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\ArgumentsNode;
+use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\TokenQueue;
+use stdClass;
 
 class ArgumentsParser implements ParserInterface
 {
@@ -23,26 +23,26 @@ class ArgumentsParser implements ParserInterface
         $this->criteria[$name] = $criterion ?? fn() => true;
     }
     
-    public function parse(TokenQueue $tokens): ArgumentsNode
+    public function parse(TokenQueue $queue): stdClass
     {
-        $node = new ArgumentsNode;
+        $arguments = [];
         
         foreach( $this->criteria as $name => $criterion )
         {
-            if( ! $tokens->getHead() instanceof ArgumentNode )
+            if( ! $queue->getHead() instanceof ArgumentToken )
             {
                 throw new ParserException();
             }
             
-            if( ! call_user_func($criterion, $tokens->getHead()) )
+            if( ! call_user_func($criterion, (string) $queue->getHead()) )
             {
                 throw new ParserException();
             }
             
-            $node->append($name, $tokens->pull());
+            $arguments[$name] = (string) $queue->dequeue();
         }
         
-        return $node;
+        return (object) $arguments;
     }
     
 }

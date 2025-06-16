@@ -1,7 +1,8 @@
 <?php
 
 use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
+use Mohachi\CommandLine\Token\ArgumentToken;
+use Mohachi\CommandLine\Token\Identifier\IdentifierTokenInterface;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -10,6 +11,23 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(TokenQueue::class)]
 class TokenQueueTest extends TestCase
 {
+    
+    /* METHOD: isEmpty */
+    
+    #[Test]
+    public function is_empty_of_empty_queue()
+    {
+        $this->assertTrue((new TokenQueue)->isEmpty());
+    }
+    
+    #[Test]
+    public function is_empty_of_non_empty_queue()
+    {
+        $queue = new TokenQueue;
+        $queue->enqueue($this->createStub(IdentifierTokenInterface::class));
+        
+        $this->assertFalse($queue->isEmpty());
+    }
     
     /* METHOD: getHead */
     
@@ -24,17 +42,17 @@ class TokenQueueTest extends TestCase
     #[Test]
     public function get_head_of_non_empty_queue()
     {
-        $arg = new ArgumentNode("value");
-        $tokens = new TokenQueue;
-        $tokens->push($arg);
+        $token = new ArgumentToken("value");
+        $queue = new TokenQueue;
+        $queue->enqueue($token);
         
-        $this->assertSame($arg, $tokens->getHead());
+        $this->assertSame($token, $queue->getHead());
     }
     
-    /* METHOD: pull */
+    /* METHOD: dequeue */
     
     #[Test]
-    public function pull_from_empty_queue()
+    public function dequeue_from_empty_queue()
     {
         $this->expectException(UnderflowException::class);
         
@@ -42,11 +60,11 @@ class TokenQueueTest extends TestCase
     }
     
     #[Test]
-    public function pull_from_non_empty_queue()
+    public function dequeue_from_non_empty_queue()
     {
-        $token = new ArgumentNode("value");
+        $token = new ArgumentToken("value");
         $tokens = new TokenQueue;
-        $tokens->push($token);
+        $tokens->enqueue($token);
         
         $this->assertSame($token, $tokens->getHead());
     }

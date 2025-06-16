@@ -2,10 +2,9 @@
 
 namespace Mohachi\CommandLine\Parser;
 
-use Mohachi\CommandLine\SyntaxTree\NodeInterface;
 use Mohachi\CommandLine\TokenQueue;
 
 interface ParserInterface
 {
-    public function parse(TokenQueue $tokens): NodeInterface;
+    public function parse(TokenQueue $queue): mixed;
 }

@@ -3,35 +3,32 @@
 namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\SyntaxTree\IdentifierNodeInterface;
-use Mohachi\CommandLine\SyntaxTree\OptionNode;
 use Mohachi\CommandLine\TokenQueue;
+use stdClass;
 
 class OptionParser implements ParserInterface
 {
     
-    readonly IdentifierParser $id;
-    readonly ArgumentsParser $arguments;
     
-    public function __construct(private string $name, IdentifierNodeInterface $id)
+    public function __construct(
+        private string $name,
+        readonly IdentifierParser $id = new IdentifierParser,
+        readonly ArgumentsParser $arguments = new ArgumentsParser
+    )
     {
         if( "" == $name )
         {
             throw new InvalidArgumentException();
         }
-        
-        $this->id = new IdentifierParser;
-        $this->arguments = new ArgumentsParser;
-        $this->id->append($id);
     }
     
-    public function parse(TokenQueue $tokens): OptionNode
+    public function parse(TokenQueue $queue): stdClass
     {
-        return new OptionNode(
-            $this->name,
-            $this->id->parse($tokens),
-            $this->arguments->parse($tokens)
-        );
+        $option = new stdClass;
+        $option->name = $this->name;
+        $option->id = $this->id->parse($queue);
+        $option->arguments = $this->arguments->parse($queue);
+        return $option;
     }
     
 }

@@ -3,39 +3,44 @@
 namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\SyntaxTree\LeafNodeInterface;
+use Mohachi\CommandLine\Token\TokenInterface;
 
 class TokenQueue
 {
     
     /**
-     * @var LeafNodeInterface[] $buffer
+     * @var TokenInterface[] $tokens
      */
-    private array $buffer;
+    private array $tokens = [];
     
-    public function push(LeafNodeInterface $node)
+    public function isEmpty()
     {
-        $this->buffer[] = $node;
+        return empty($this->tokens);
     }
     
-    public function getHead(): LeafNodeInterface
+    public function enqueue(TokenInterface $token)
     {
-        if( empty($this->buffer) )
+        $this->tokens[] = $token;
+    }
+    
+    public function getHead(): TokenInterface
+    {
+        if( empty($this->tokens) )
         {
             throw new UnderflowException();
         }
         
-        return $this->buffer[0];
+        return $this->tokens[0];
     }
     
-    public function pull(): LeafNodeInterface
+    public function dequeue(): TokenInterface
     {
-        if( empty($this->buffer) )
+        if( empty($this->tokens) )
         {
             throw new UnderflowException();
         }
         
-        return array_shift($this->buffer);
+        return array_shift($this->tokens);
     }
     
 }

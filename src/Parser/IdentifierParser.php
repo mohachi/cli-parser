@@ -3,29 +3,29 @@
 namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\SyntaxTree\IdentifierNodeInterface;
+use Mohachi\CommandLine\Token\Identifier\IdentifierTokenInterface;
 use Mohachi\CommandLine\TokenQueue;
 
 class IdentifierParser implements ParserInterface
 {
     
     /**
-     * @var IdentifierNodeInterface[] $nodes
+     * @var IdentifierTokenInterface[] $tokens
      */
-    private array $nodes = [];
+    private array $tokens = [];
     
-    public function append(IdentifierNodeInterface $node)
+    public function append(IdentifierTokenInterface $token)
     {
-        $this->nodes[] = $node;
+        $this->tokens[] = $token;
     }
     
-    public function parse(TokenQueue $tokens): IdentifierNodeInterface
+    public function parse(TokenQueue $queue):  string
     {
-        foreach( $this->nodes as $node )
+        foreach( $this->tokens as $token )
         {
-            if( $node === $tokens->getHead() )
+            if( $token === $queue->getHead() )
             {
-                return $tokens->pull();
+                return (string) $queue->dequeue();
             }
         }
         
