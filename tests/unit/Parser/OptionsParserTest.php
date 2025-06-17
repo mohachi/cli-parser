@@ -5,9 +5,9 @@ use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Parser\OptionsParser;
-use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
+use Mohachi\CommandLine\Token\ArgumentToken;
+use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,28 +22,34 @@ class OptionsParserTest extends TestCase
     #[Test]
     public function appent_negative_min()
     {
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LongIdentifierToken("opt"));
+        
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParser)
-            ->append(new OptionParser("opt", new LongIdentifierNode("opt")), -1);
+        (new OptionsParser)->append($optParser, -1);
     }
     
     #[Test]
     public function appent_max_equal_to_zero()
     {
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LongIdentifierToken("opt"));
+        
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParser)
-            ->append(new OptionParser("opt", new LongIdentifierNode("opt")), 0, 0);
+        (new OptionsParser)->append($optParser, 0, 0);
     }
     
     #[Test]
     public function appent_positive_max_less_than_min()
     {
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LongIdentifierToken("opt"));
+        
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParser)
-            ->append(new OptionParser("opt", new LongIdentifierNode("opt")), 5, 2);
+        (new OptionsParser)->append($optParser, 5, 2);
     }
     
     /* METHOD: parse */
@@ -51,32 +57,36 @@ class OptionsParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new OptionsParser();
-        $parser->append(new OptionParser("opt", new LiteralIdentifierNode("cmd")));
+        $parser = new OptionsParser;
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LiteralIdentifierToken("cmd"));
+        $parser->append($optParser);
         
-        $node = $parser->parse(new TokenQueue);
+        $options = $parser->parse(new TokenQueue);
         
-        $this->assertEmpty($node);
+        $this->assertEmpty($options);
     }
     
     #[Test]
     public function parse_against_empty_parsers()
     {
-        $id = new LiteralIdentifierNode("cmd");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
+        $id = new LiteralIdentifierToken("cmd");
+        $queue = new TokenQueue;
+        $queue->enqueue($id);
         
-        $node = (new OptionsParser())->parse($tokens);
+        $options = (new OptionsParser())->parse($queue);
         
-        $this->assertEmpty($node);
-        $this->assertSame($id, $tokens->getHead());
+        $this->assertEmpty($options);
+        $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
     }
     
     #[Test]
     public function parse_required_option_agains_empty_queue()
     {
         $parser = new OptionsParser;
-        $parser->append(new OptionParser("opt", new LongIdentifierNode("opt")), 1);
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LongIdentifierToken("opt"));
+        $parser->append($optParser, 1);
         
         $this->expectException(UnderflowException::class);
         
@@ -86,86 +96,96 @@ class OptionsParserTest extends TestCase
     #[Test]
     public function parse_insufficient_option_min()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new LiteralIdentifierNode("extra"));
+        $queue = new TokenQueue;
+        $queue->enqueue(new LiteralIdentifierToken("extra"));
         $parser = new OptionsParser;
-        $parser->append(new OptionParser("opt", new LongIdentifierNode("opt")), 1);
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LongIdentifierToken("opt"));
+        $parser->append($optParser, 1);
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_overwhelmed_option()
     {
-        $id = new LongIdentifierNode("opt");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
-        $tokens->push($id);
+        $id = new LongIdentifierToken("opt");
+        $queue = new TokenQueue;
+        $queue->enqueue($id);
+        $queue->enqueue($id);
         $parser = new OptionsParser;
-        $parser->append(new OptionParser("opt", $id), 0, 1);
+        $optParser = new OptionParser("opt");
+        $optParser->id->append($id);
+        $parser->append($optParser, 0, 1);
         
-        $node = $parser->parse($tokens);
+        $options = $parser->parse($queue);
         
-        $this->assertSame($id, $tokens->getHead());
-        $this->assertEquals("opt", $node[0]->name);
+        $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
+        $this->assertEquals("opt", $options[0]->name);
     }
     
     #[Test]
     public function parse_unsatisfied_option_id()
     {
-        $id = new LiteralIdentifierNode("unexpected");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
+        $id = new LiteralIdentifierToken("unexpected");
+        $queue = new TokenQueue;
+        $queue->enqueue($id);
         $parser = new OptionsParser;
-        $parser->append(new OptionParser("opt", new LiteralIdentifierNode("expected")));
+        $optParser = new OptionParser("opt");
+        $optParser->id->append(new LiteralIdentifierToken("expected"));
+        $parser->append($optParser);
         
-        $node = $parser->parse($tokens);
+        $options = $parser->parse($queue);
         
-        $this->assertEmpty($node);
-        $this->assertSame($id, $tokens->getHead());
+        $this->assertEmpty($options);
+        $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
     }
     
     #[Test]
     public function parse_unsatisfied_option_arguments()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new LongIdentifierNode("opt"));
-        $tokens->push(new LiteralIdentifierNode("unexpected"));
-        $opt = new OptionParser("opt", new LongIdentifierNode("expected"));
+        $queue = new TokenQueue;
+        $queue->enqueue(new LongIdentifierToken("opt"));
+        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
+        $opt = new OptionParser("opt");
+        $opt->id->append(new LongIdentifierToken("expected"));
         $opt->arguments->append("arg", fn($v) => $v == "expected");
         $parser = new OptionsParser;
         $parser->append($opt, 1);
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_satisfied_option()
     {
-        $id1 = new LongIdentifierNode("num");
-        $arg1 = new ArgumentNode("12");
-        $id2 = new LongIdentifierNode("opt");
-        $tokens = new TokenQueue;
-        $tokens->push($id2);
-        $tokens->push($id1);
-        $tokens->push($arg1);
-        $tokens->push($id2);
-        $opt = new OptionParser("num", $id1);
+        $id1 = new LongIdentifierToken("num");
+        $arg1 = new ArgumentToken("12");
+        $id2 = new LongIdentifierToken("opt");
+        $queue = new TokenQueue;
+        $queue->enqueue($id2);
+        $queue->enqueue($id1);
+        $queue->enqueue($arg1);
+        $queue->enqueue($id2);
+        $opt = new OptionParser("num");
+        $opt->id->append($id1);
         $opt->arguments->append("value", fn(string $v) => is_numeric($v));
         $parser = new OptionsParser;
         $parser->append($opt);
-        $parser->append(new OptionParser("opt", $id2));
+        $opt = new OptionParser("opt");
+        $opt->id->append($id2);
+        $parser->append($opt);
         
-        $node = $parser->parse($tokens);
+        $options = $parser->parse($queue);
         
-        $this->assertCount(3, $node);
-        $this->assertEquals("opt", $node[0]->name);
-        $this->assertEquals("num", $node[1]->name);
-        $this->assertEquals("opt", $node[2]->name);
+        $this->assertCount(3, $options);
+        $this->assertEquals("opt", $options[0]->name);
+        $this->assertEquals("num", $options[1]->name);
+        $this->assertEquals("opt", $options[2]->name);
     }
     
 }

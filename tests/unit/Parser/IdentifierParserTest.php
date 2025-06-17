@@ -3,8 +3,8 @@
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\Parser\IdentifierParser;
-use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
+use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -20,7 +20,7 @@ class IdentifierParserTest extends TestCase
     public function parse_empty_queue()
     {
         $parser = new IdentifierParser;
-        $parser->append(new LongIdentifierNode("cmd"));
+        $parser->append(new LongIdentifierToken("cmd"));
         
         $this->expectException(UnderflowException::class);
         
@@ -30,39 +30,39 @@ class IdentifierParserTest extends TestCase
     #[Test]
     public function parse_against_empty_id_list()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new LiteralIdentifierNode("cmd"));
+        $queue = new TokenQueue;
+        $queue->enqueue(new LiteralIdentifierToken("cmd"));
         
         $this->expectException(ParserException::class);
         
-        (new IdentifierParser)->parse($tokens);
+        (new IdentifierParser)->parse($queue);
     }
     
     #[Test]
     public function parse_unsatisfied_id()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new LongIdentifierNode("unexpected"));
+        $queue = new TokenQueue;
+        $queue->enqueue(new LongIdentifierToken("unexpected"));
         $parser = new IdentifierParser;
-        $parser->append(new LongIdentifierNode("expected"));
+        $parser->append(new LongIdentifierToken("expected"));
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_satisfied_id()
     {
-        $id = new LongIdentifierNode("expected");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
+        $queue = new TokenQueue;
         $parser = new IdentifierParser;
+        $id = new LongIdentifierToken("expected");
+        $queue->enqueue($id);
         $parser->append($id);
         
-        $node = $parser->parse($tokens);
+        $id = $parser->parse($queue);
         
-        $this->assertSame($id, $node);
+        $this->assertSame("--expected", $id);
     }
     
 }

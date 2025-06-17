@@ -3,38 +3,34 @@
 namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\SyntaxTree\CommandNode;
-use Mohachi\CommandLine\SyntaxTree\IdentifierNodeInterface;
 use Mohachi\CommandLine\TokenQueue;
+use stdClass;
 
 class CommandParser implements ParserInterface
 {
     
-    readonly IdentifierParser $id;
-    readonly OptionsParser $options;
-    readonly ArgumentsParser $arguments;
     
-    public function __construct(private string $name, IdentifierNodeInterface $id)
+    public function __construct(
+        private string $name,
+        readonly IdentifierParser $id = new IdentifierParser,
+        readonly OptionsParser $options = new OptionsParser,
+        readonly ArgumentsParser $arguments = new ArgumentsParser,
+    )
     {
         if( "" == $name )
         {
             throw new InvalidArgumentException();
         }
-        
-        $this->id = new IdentifierParser;
-        $this->options = new OptionsParser;
-        $this->arguments = new ArgumentsParser;
-        $this->id->append($id);
     }
     
-    public function parse(TokenQueue $tokens): CommandNode
+    public function parse(TokenQueue $queue): stdClass
     {
-        return new CommandNode(
-            $this->name,
-            $this->id->parse($tokens),
-            $this->options->parse($tokens),
-            $this->arguments->parse($tokens)
-        );
+        $command = new stdClass;
+        $command->name = $this->name;
+        $command->id = $this->id->parse($queue);
+        $command->options = $this->options->parse($queue);
+        $command->arguments = $this->arguments->parse($queue);
+        return $command;
     }
     
 }

@@ -3,9 +3,9 @@
 use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Parser\OptionParser;
-use Mohachi\CommandLine\SyntaxTree\ArgumentNode;
-use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
+use Mohachi\CommandLine\Token\ArgumentToken;
+use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,7 +22,7 @@ class CommandParserTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new CommandParser("", new LiteralIdentifierNode("cmd"));
+        new CommandParser("");
     }
     
     /* METHOD: parse */
@@ -30,59 +30,66 @@ class CommandParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
+        $parser = new CommandParser("cmd");
+        $parser->id->append(new LiteralIdentifierToken("cmd"));
+        
         $this->expectException(UnderflowException::class);
         
-        (new CommandParser("cmd", new LiteralIdentifierNode("cmd")))
-            ->parse(new TokenQueue);
+        $parser->parse(new TokenQueue);
     }
     
     #[Test]
     public function parse_unsatisfied_id()
     {
-        $tokens = new TokenQueue;
-        $tokens->push(new LiteralIdentifierNode("unexpected"));
+        $queue = new TokenQueue;
+        $parser = new CommandParser("cmd");
+        $parser->id->append(new LiteralIdentifierToken("cmd"));
+        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
         
         $this->expectException(ParserException::class);
         
-        (new CommandParser("cmd", new LiteralIdentifierNode("cmd")))
-            ->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_unsatisfied_argument()
     {
-        $id = new LongIdentifierNode("num");
-        $tokens = new TokenQueue;
-        $tokens->push($id);
-        $tokens->push(new LiteralIdentifierNode("unexpected"));
-        $parser = new CommandParser("number", $id);
+        $id = new LongIdentifierToken("num");
+        $queue = new TokenQueue;
+        $queue->enqueue($id);
+        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
+        $parser = new CommandParser("number");
+        $parser->id->append($id);
         $parser->arguments->append("arg", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($tokens);
+        $parser->parse($queue);
     }
     
     #[Test]
     public function parse_satisfied_command()
     {
-        $id1 = new LiteralIdentifierNode("cmd");
-        $id2 = new LongIdentifierNode("opt");
-        $arg = new ArgumentNode("value");
-        $tokens = new TokenQueue;
-        $tokens->push($id1);
-        $tokens->push($id2);
-        $tokens->push($arg);
-        $parser = new CommandParser("cmd", $id1);
+        $id1 = new LiteralIdentifierToken("cmd");
+        $id2 = new LongIdentifierToken("opt");
+        $arg = new ArgumentToken("value");
+        $queue = new TokenQueue;
+        $queue->enqueue($id1);
+        $queue->enqueue($id2);
+        $queue->enqueue($arg);
+        $parser = new CommandParser("cmd");
+        $parser->id->append($id1);
         $parser->arguments->append("arg");
-        $parser->options->append(new OptionParser("opt", $id2));
+        $optParser = new OptionParser("opt");
+        $optParser->id->append($id2);
+        $parser->options->append($optParser);
         
-        $node = $parser->parse($tokens);
+        $command = $parser->parse($queue);
         
-        $this->assertSame($id1, $node->id);
-        $this->assertCount(1, $node->options);
-        $this->assertContains($arg, $node->arguments);
-        $this->assertEquals("opt", $node->options[0]->name);
+        $this->assertEquals($id1, $command->id);
+        $this->assertCount(1, $command->options);
+        $this->assertEquals((object) ["arg" => "value"], $command->arguments);
+        $this->assertEquals("opt", $command->options[0]->name);
     }
     
 }

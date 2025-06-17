@@ -1,49 +1,197 @@
 <?php
 
+use Mohachi\CommandLine\IdentifierTokenizer\LiteralIdentifierTokenizer;
+use Mohachi\CommandLine\IdentifierTokenizer\LongIdentifierTokenizer;
+use Mohachi\CommandLine\IdentifierTokenizer\ShortIdentifierTokenizer;
+use Mohachi\CommandLine\Normalizer;
 use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Parser\OptionParser;
-use Mohachi\CommandLine\SyntaxTree\LiteralIdentifierNode;
-use Mohachi\CommandLine\SyntaxTree\LongIdentifierNode;
-use Mohachi\CommandLine\Tokenizer;
+use Mohachi\CommandLine\Token\ArgumentToken;
+use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
+use Mohachi\CommandLine\Token\Identifier\ShortIdentifierToken;
+use Mohachi\CommandLine\TokenQueue;
+use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-$idNodes = [
-    "binary" => new LongIdentifierNode("binary"),
-    "check" => new LongIdentifierNode("check"),
-    "help" => new LongIdentifierNode("help"),
-    "ignore-missing" => new LongIdentifierNode("ignore-missing"),
-    "quiet" => new LongIdentifierNode("quiet"),
-    "sha256sum" => new LiteralIdentifierNode("sha256sum"),
-    "status" => new LongIdentifierNode("status"),
-    "strict" => new LongIdentifierNode("strict"),
-    "tag" => new LongIdentifierNode("tag"),
-    "text" => new LongIdentifierNode("text"),
-    "version" => new LongIdentifierNode("version"),
-    "warn" => new LongIdentifierNode("warn"),
-    "zero" => new LongIdentifierNode("zero"),
+/* Index
+    1. Declaration - the declaration of the command and examples.
+    2. Automation - automatic creation of tokenizers and parsers.
+    3. Run test - automatic run of example tests.
+*/
+
+/* Declaration */
+
+$cmd = [
+    "name" => "sha256sum",
+    "ids" => [
+        "literal" => new LiteralIdentifierToken("sha256sum")
+    ],
+    "options" => [
+        "binary" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("binary"),
+                "short" => new ShortIdentifierToken("b")
+            ]
+        ],
+        "check" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("check"),
+                "short" => new ShortIdentifierToken("c")
+            ]
+        ],
+        "help" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("help"),
+            ]
+        ],
+        "ignore-missing" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("ignore-missing"),
+            ]
+        ],
+        "quiet" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("quiet"),
+            ]
+        ],
+        "status" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("status"),
+            ]
+        ],
+        "strict" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("strict"),
+            ]
+        ],
+        "tag" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("tag"),
+            ]
+        ],
+        "text" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("text"),
+                "short" => new ShortIdentifierToken("t")
+            ]
+        ],
+        "version" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("version"),
+            ]
+        ],
+        "warn" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("warn"),
+                "short" => new ShortIdentifierToken("w")
+            ]
+        ],
+        "zero" => [
+            "ids" => [
+                "long" => new LongIdentifierToken("zero"),
+            ]
+        ],
+    ],
+    "arguments" => [
+        "FILE" => null
+    ]
 ];
 
-$tokenizer = new Tokenizer();
-$parser = new CommandParser("sha256sum", $idNodes["sha256sum"]);
-$parser->arguments->append("FILE");
+$examples = [
+    [
+        "line" => ["sha256sum", "--ignore-missing", "--check", "--quiet", "path/to/file.sha256"],
+        "expected" => [
+            "queue" => (function()
+            {
+                $queue = new TokenQueue;
+                $queue->enqueue(new LiteralIdentifierToken("sha256sum"));
+                $queue->enqueue(new LongIdentifierToken("ignore-missing"));
+                $queue->enqueue(new LongIdentifierToken("check"));
+                $queue->enqueue(new LongIdentifierToken("quiet"));
+                $queue->enqueue(new ArgumentToken("path/to/file.sha256"));
+                return $queue;
+            })(),
+            "syntax" => (function()
+            {
+                return (object) [
+                    "name" => "sha256sum",
+                    "id" => "sha256sum",
+                    "options" => [
+                        (object) [
+                            "name" => "ignore-missing",
+                            "id" => "--ignore-missing",
+                            "arguments" => (object) []
+                        ],
+                        (object) [
+                            "name" => "check",
+                            "id" => "--check",
+                            "arguments" => (object) []
+                        ],
+                        (object) [
+                            "name" => "quiet",
+                            "id" => "--quiet",
+                            "arguments" => (object) []
+                        ],
+                    ],
+                    "arguments" => (object) [
+                        "FILE" => "path/to/file.sha256"
+                    ]
+                ];
+            })()
+        ]
+    ],
+];
 
-foreach( $idNodes as $name => $id )
+/* Automation */
+
+$normalizer = new Normalizer;
+$normalizer->long = new LongIdentifierTokenizer;
+$normalizer->short = new ShortIdentifierTokenizer;
+$normalizer->literal = new LiteralIdentifierTokenizer;
+
+$cmd["parser"] = new CommandParser($cmd["name"]);
+
+foreach( $cmd["ids"] as $type => $id )
 {
-    $tokenizer->appendIdentifier($id);
-    $parser->options->append(new OptionParser($name, $id));
-    
+    $cmd["parser"]->id->append($id);
+    $normalizer->{$type}->append($id);
 }
 
-$line = [
-    "sha256sum",
-    "--ignore-missing",
-    "--check",
-    "--quiet",
-    "path/to/file.sha256"
-];
+foreach( $cmd["options"] as $name => $option )
+{
+    $parser = new OptionParser($name);
+    
+    foreach( $option["ids"] as $type => $id )
+    {
+        $parser->id->append($id);
+        $normalizer->{$type}->append($id);
+    }
+    
+    if( isset($option["arguments"]) )
+    {
+        foreach( $option["arguments"] as $name => $criterion )
+        {
+            $parser->arguments->append($name, $criterion);
+        }
+    }
+    
+    $cmd["parser"]->options->append($parser);
+}
 
-$tokens = $tokenizer->tokenize($line);
-$node = $parser->parse($tokens);
+foreach( $cmd["arguments"] as $name => $criterion )
+{
+    $cmd["parser"]->arguments->append($name, $criterion);
+}
 
-dump($node);
+/* Run tests */
+
+foreach( $examples as $i => $example )
+{
+    $queue = $normalizer->normalize($example["line"]);
+    TestCase::assertEquals($example["expected"]["queue"], $queue);
+    
+    $syntax = $cmd["parser"]->parse($queue);
+    TestCase::assertEquals($example["expected"]["syntax"], $syntax);
+}
