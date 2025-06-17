@@ -16,7 +16,7 @@ class Normalizer
      */
     private array $tokenizers = [];
     
-    public function appeand(string $name, IdentifierTokenizerInterface $tokenizer)
+    public function append(string $name, IdentifierTokenizerInterface $tokenizer)
     {
         if( isset($this->tokenizers[$name]) )
         {
@@ -28,10 +28,10 @@ class Normalizer
     
     public function __set($name, $value)
     {
-        $this->appeand($name, $value);
+        $this->append($name, $value);
     }
     
-    public function __get($name)
+    public function __get($name): IdentifierTokenizerInterface
     {
         return $this->tokenizers[$name];
     }
