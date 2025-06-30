@@ -27,7 +27,12 @@ class OptionsParser implements ParserInterface
             throw new InvalidArgumentException("invalid maximum value");
         }
         
-        $this->parsers[] = [
+        if( isset($this->parsers[$parser->name]) )
+        {
+            throw new InvalidArgumentException("duplicate parser");
+        }
+        
+        $this->parsers[$parser->name] = [
             "min" => $min,
             "max" => $max,
             "parser" => $parser
