@@ -14,6 +14,8 @@ via composer:
 composer require mohachi/command-line
 ```
 
+**Note:** don't forget to run `composer install` if you clone this repo.
+
 ## Run tests
 
 To run unit tests:
@@ -25,5 +27,5 @@ vendor/bin/phpunit
 To run integration tests:
 
 ```sh
-php tests/integration/*.php
+php run_integrated_test.php
 ```
