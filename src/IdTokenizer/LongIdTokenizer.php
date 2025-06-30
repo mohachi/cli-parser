@@ -1,20 +1,20 @@
 <?php
 
-namespace Mohachi\CommandLine\IdentifierTokenizer;
+namespace Mohachi\CommandLine\IdTokenizer;
 
 use Mohachi\CommandLine\Exception\TokenizerException;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
 
-class LongIdentifierTokenizer implements IdentifierTokenizerInterface
+class LongIdTokenizer implements IdTokenizerInterface
 {
     
     /**
-     * @var LongIdentifierToken[] $tokens
+     * @var LongIdToken[] $tokens
      */
     private array $tokens = [];
     
-    public function append(LongIdentifierToken $token)
+    public function append(LongIdToken $token)
     {
         $this->tokens[] = $token;
     }

@@ -1,12 +1,12 @@
 <?php
 
-use Mohachi\CommandLine\Token\Identifier\ShortIdentifierToken;
+use Mohachi\CommandLine\Token\Id\ShortIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ShortIdentifierToken::class)]
-class ShortIdentifierTokenTest extends TestCase
+#[CoversClass(ShortIdToken::class)]
+class ShortIdTokenTest extends TestCase
 {
     
     /* METHOD: __construct */
@@ -16,7 +16,7 @@ class ShortIdentifierTokenTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new ShortIdentifierToken("");
+        new ShortIdToken("");
     }
     
     #[Test]
@@ -24,7 +24,7 @@ class ShortIdentifierTokenTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new ShortIdentifierToken("short");
+        new ShortIdToken("short");
     }
     
     #[Test]
@@ -32,13 +32,13 @@ class ShortIdentifierTokenTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new ShortIdentifierToken("-");
+        new ShortIdToken("-");
     }
     
     #[Test]
     public function construct_value_begins_with_one_hyphens()
     {
-        $token = new ShortIdentifierToken("-e");
+        $token = new ShortIdToken("-e");
         
         $this->assertSame("e", $token->value);
     }
@@ -48,7 +48,7 @@ class ShortIdentifierTokenTest extends TestCase
     #[Test]
     public function case_value_to_string()
     {
-        $token = new ShortIdentifierToken("e");
+        $token = new ShortIdToken("e");
         
         $this->assertSame("-e", (string) $token);
     }

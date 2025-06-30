@@ -1,16 +1,16 @@
 <?php
 
 use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdentifierTokenizer\LongIdentifierTokenizer;
+use Mohachi\CommandLine\IdTokenizer\LongIdTokenizer;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(LongIdentifierTokenizer::class)]
-class LongIdentifierTokenizerTest extends TestCase
+#[CoversClass(LongIdTokenizer::class)]
+class LongIdTokenizerTest extends TestCase
 {
     
     /* METHOD: tokenize */
@@ -18,8 +18,8 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_empty_input()
     {
-        $tokenizer = new LongIdentifierTokenizer;
-        $tokenizer->append(new LongIdentifierToken("id"));
+        $tokenizer = new LongIdTokenizer;
+        $tokenizer->append(new LongIdToken("id"));
         
         $this->expectException(TokenizerException::class);
         
@@ -29,8 +29,8 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_literal_input()
     {
-        $tokenizer = new LongIdentifierTokenizer;
-        $tokenizer->append(new LongIdentifierToken("id"));
+        $tokenizer = new LongIdTokenizer;
+        $tokenizer->append(new LongIdToken("id"));
         
         $this->expectException(TokenizerException::class);
         
@@ -42,15 +42,15 @@ class LongIdentifierTokenizerTest extends TestCase
     {
         $this->expectException(TokenizerException::class);
         
-        (new LongIdentifierTokenizer)->tokenize("--id");
+        (new LongIdTokenizer)->tokenize("--id");
     }
     
     #[Test]
     public function tokenize_unsatisfied_tokens()
     {
-        $tokenizer = new LongIdentifierTokenizer;
-        $tokenizer->append(new LongIdentifierToken("expected-1"));
-        $tokenizer->append(new LongIdentifierToken("expected-2"));
+        $tokenizer = new LongIdTokenizer;
+        $tokenizer->append(new LongIdToken("expected-1"));
+        $tokenizer->append(new LongIdToken("expected-2"));
         
         $this->expectException(TokenizerException::class);
         
@@ -60,8 +60,8 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_input_begins_with_satisfied_token_followed_by_extra_chars()
     {
-        $tokenizer = new LongIdentifierTokenizer;
-        $tokenizer->append(new LongIdentifierToken("expected"));
+        $tokenizer = new LongIdTokenizer;
+        $tokenizer->append(new LongIdToken("expected"));
         
         $this->expectException(TokenizerException::class);
         
@@ -71,8 +71,8 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_satisfactory_input_of_id()
     {
-        $token = new LongIdentifierToken("expected");
-        $tokenizer = new LongIdentifierTokenizer;
+        $token = new LongIdToken("expected");
+        $tokenizer = new LongIdTokenizer;
         $tokenizer->append($token);
         
         $tokens = $tokenizer->tokenize("--expected");
@@ -83,8 +83,8 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_satisfactory_input_of_id_and_empty_argument()
     {
-        $token = new LongIdentifierToken("expected");
-        $tokenizer = new LongIdentifierTokenizer;
+        $token = new LongIdToken("expected");
+        $tokenizer = new LongIdTokenizer;
         $tokenizer->append($token);
         
         $tokens = $tokenizer->tokenize("--expected=");
@@ -95,8 +95,8 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_satisfactory_input_of_id_and_argument()
     {
-        $token = new LongIdentifierToken("expected");
-        $tokenizer = new LongIdentifierTokenizer;
+        $token = new LongIdToken("expected");
+        $tokenizer = new LongIdTokenizer;
         $tokenizer->append($token);
         
         $tokens = $tokenizer->tokenize("--expected=arg");
@@ -107,9 +107,9 @@ class LongIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_against_callabsable_tokens()
     {
-        $token_1 = new LongIdentifierToken("option");
-        $token_2 = new LongIdentifierToken("opt");
-        $tokenizer = new LongIdentifierTokenizer;
+        $token_1 = new LongIdToken("option");
+        $token_2 = new LongIdToken("opt");
+        $tokenizer = new LongIdTokenizer;
         $tokenizer->append($token_2);
         $tokenizer->append($token_1);
         

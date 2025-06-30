@@ -1,15 +1,15 @@
 <?php
 
 use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdentifierTokenizer\LiteralIdentifierTokenizer;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(LiteralIdentifierTokenizer::class)]
-class LiteralIdentifierTokenizerTest extends TestCase
+#[CoversClass(LiteralIdTokenizer::class)]
+class LiteralIdTokenizerTest extends TestCase
 {
     
     /* METHOD: tokenize */
@@ -17,8 +17,8 @@ class LiteralIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_empty_input()
     {
-        $tokenizer = new LiteralIdentifierTokenizer;
-        $tokenizer->append(new LiteralIdentifierToken("id"));
+        $tokenizer = new LiteralIdTokenizer;
+        $tokenizer->append(new LiteralIdToken("id"));
         
         $this->expectException(TokenizerException::class);
         
@@ -30,14 +30,14 @@ class LiteralIdentifierTokenizerTest extends TestCase
     {
         $this->expectException(TokenizerException::class);
         
-        (new LiteralIdentifierTokenizer)->tokenize("unexpected");
+        (new LiteralIdTokenizer)->tokenize("unexpected");
     }
     
     #[Test]
     public function tokenize_unsatisfactory_input()
     {
-        $tokenizer = new LiteralIdentifierTokenizer;
-        $tokenizer->append(new LiteralIdentifierToken("expected"));
+        $tokenizer = new LiteralIdTokenizer;
+        $tokenizer->append(new LiteralIdToken("expected"));
         
         $this->expectException(TokenizerException::class);
         
@@ -47,8 +47,8 @@ class LiteralIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_satisfactory_input()
     {
-        $token = new LiteralIdentifierToken("expected");
-        $tokenizer = new LiteralIdentifierTokenizer;
+        $token = new LiteralIdToken("expected");
+        $tokenizer = new LiteralIdTokenizer;
         $tokenizer->append($token);
         
         $tokens = $tokenizer->tokenize("expected");

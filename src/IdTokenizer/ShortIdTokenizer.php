@@ -1,20 +1,20 @@
 <?php
 
-namespace Mohachi\CommandLine\IdentifierTokenizer;
+namespace Mohachi\CommandLine\IdTokenizer;
 
 use Mohachi\CommandLine\Exception\TokenizerException;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\ShortIdentifierToken;
+use Mohachi\CommandLine\Token\Id\ShortIdToken;
 
-class ShortIdentifierTokenizer implements IdentifierTokenizerInterface
+class ShortIdTokenizer implements IdTokenizerInterface
 {
     
     /**
-     * @var ShortIdentifierToken[] $tokens
+     * @var ShortIdToken[] $tokens
      */
     private array $tokens = [];
     
-    public function append(ShortIdentifierToken $token)
+    public function append(ShortIdToken $token)
     {
         $this->tokens[] = $token;
     }

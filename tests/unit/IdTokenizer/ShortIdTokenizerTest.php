@@ -1,15 +1,15 @@
 <?php
 
 use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdentifierTokenizer\ShortIdentifierTokenizer;
+use Mohachi\CommandLine\IdTokenizer\ShortIdTokenizer;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\ShortIdentifierToken;
+use Mohachi\CommandLine\Token\Id\ShortIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ShortIdentifierTokenizer::class)]
-class ShortIdentifierTokenizerTest extends TestCase
+#[CoversClass(ShortIdTokenizer::class)]
+class ShortIdTokenizerTest extends TestCase
 {
     
     /* METHOD: tokenize */
@@ -17,8 +17,8 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_empty_input()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $tokenizer->append(new ShortIdentifierToken("i"));
+        $tokenizer = new ShortIdTokenizer;
+        $tokenizer->append(new ShortIdToken("i"));
         
         $this->expectException(TokenizerException::class);
         
@@ -28,14 +28,14 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_literal_input()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $tokenizer->append(new ShortIdentifierToken("l"));
-        $tokenizer->append(new ShortIdentifierToken("i"));
-        $tokenizer->append(new ShortIdentifierToken("t"));
-        $tokenizer->append(new ShortIdentifierToken("e"));
-        $tokenizer->append(new ShortIdentifierToken("r"));
-        $tokenizer->append(new ShortIdentifierToken("a"));
-        $tokenizer->append(new ShortIdentifierToken("l"));
+        $tokenizer = new ShortIdTokenizer;
+        $tokenizer->append(new ShortIdToken("l"));
+        $tokenizer->append(new ShortIdToken("i"));
+        $tokenizer->append(new ShortIdToken("t"));
+        $tokenizer->append(new ShortIdToken("e"));
+        $tokenizer->append(new ShortIdToken("r"));
+        $tokenizer->append(new ShortIdToken("a"));
+        $tokenizer->append(new ShortIdToken("l"));
         
         $this->expectException(TokenizerException::class);
         
@@ -45,11 +45,11 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_long_input()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $tokenizer->append(new ShortIdentifierToken("l"));
-        $tokenizer->append(new ShortIdentifierToken("o"));
-        $tokenizer->append(new ShortIdentifierToken("n"));
-        $tokenizer->append(new ShortIdentifierToken("g"));
+        $tokenizer = new ShortIdTokenizer;
+        $tokenizer->append(new ShortIdToken("l"));
+        $tokenizer->append(new ShortIdToken("o"));
+        $tokenizer->append(new ShortIdToken("n"));
+        $tokenizer->append(new ShortIdToken("g"));
         
         $this->expectException(TokenizerException::class);
         
@@ -61,15 +61,15 @@ class ShortIdentifierTokenizerTest extends TestCase
     {
         $this->expectException(TokenizerException::class);
         
-        (new ShortIdentifierTokenizer)->tokenize("-i");
+        (new ShortIdTokenizer)->tokenize("-i");
     }
     
     #[Test]
     public function tokenize_unsatisfied_tokens()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $tokenizer->append(new ShortIdentifierToken("1"));
-        $tokenizer->append(new ShortIdentifierToken("2"));
+        $tokenizer = new ShortIdTokenizer;
+        $tokenizer->append(new ShortIdToken("1"));
+        $tokenizer->append(new ShortIdToken("2"));
         
         $this->expectException(TokenizerException::class);
         
@@ -79,9 +79,9 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_input_that_satisfies_multiple_tokens()
     {
-        $token_1 = new ShortIdentifierToken("1");
-        $token_2 = new ShortIdentifierToken("2");
-        $tokenizer = new ShortIdentifierTokenizer;
+        $token_1 = new ShortIdToken("1");
+        $token_2 = new ShortIdToken("2");
+        $tokenizer = new ShortIdTokenizer;
         $tokenizer->append($token_1);
         $tokenizer->append($token_2);
         
@@ -93,9 +93,9 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_input_that_contains_unsatisfactory_ids()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $tokenizer->append(new ShortIdentifierToken("1"));
-        $tokenizer->append(new ShortIdentifierToken("2"));
+        $tokenizer = new ShortIdTokenizer;
+        $tokenizer->append(new ShortIdToken("1"));
+        $tokenizer->append(new ShortIdToken("2"));
         
         $this->expectException(TokenizerException::class);
         
@@ -105,8 +105,8 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_input_of_satisfactory_id_then_argument()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $token = new ShortIdentifierToken("1");
+        $tokenizer = new ShortIdTokenizer;
+        $token = new ShortIdToken("1");
         $tokenizer->append($token);
         
         $tokens = $tokenizer->tokenize("-1arg");
@@ -117,8 +117,8 @@ class ShortIdentifierTokenizerTest extends TestCase
     #[Test]
     public function tokenize_input_of_satisfactory_id_then_equal_sign_then_argument()
     {
-        $tokenizer = new ShortIdentifierTokenizer;
-        $token = new ShortIdentifierToken("1");
+        $tokenizer = new ShortIdTokenizer;
+        $token = new ShortIdToken("1");
         $tokenizer->append($token);
         
         $tokens = $tokenizer->tokenize("-1=arg");

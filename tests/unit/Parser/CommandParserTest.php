@@ -4,8 +4,8 @@ use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,7 +31,7 @@ class CommandParserTest extends TestCase
     public function parse_empty_queue()
     {
         $parser = new CommandParser("cmd");
-        $parser->id->append(new LiteralIdentifierToken("cmd"));
+        $parser->id->append(new LiteralIdToken("cmd"));
         
         $this->expectException(UnderflowException::class);
         
@@ -43,8 +43,8 @@ class CommandParserTest extends TestCase
     {
         $queue = new TokenQueue;
         $parser = new CommandParser("cmd");
-        $parser->id->append(new LiteralIdentifierToken("cmd"));
-        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
+        $parser->id->append(new LiteralIdToken("cmd"));
+        $queue->enqueue(new LiteralIdToken("unexpected"));
         
         $this->expectException(ParserException::class);
         
@@ -54,10 +54,10 @@ class CommandParserTest extends TestCase
     #[Test]
     public function parse_unsatisfied_argument()
     {
-        $id = new LongIdentifierToken("num");
+        $id = new LongIdToken("num");
         $queue = new TokenQueue;
         $queue->enqueue($id);
-        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
+        $queue->enqueue(new LiteralIdToken("unexpected"));
         $parser = new CommandParser("number");
         $parser->id->append($id);
         $parser->arguments->append("arg", fn($v) => is_numeric($v));
@@ -70,8 +70,8 @@ class CommandParserTest extends TestCase
     #[Test]
     public function parse_satisfied_command()
     {
-        $id1 = new LiteralIdentifierToken("cmd");
-        $id2 = new LongIdentifierToken("opt");
+        $id1 = new LiteralIdToken("cmd");
+        $id2 = new LongIdToken("opt");
         $arg = new ArgumentToken("value");
         $queue = new TokenQueue;
         $queue->enqueue($id1);

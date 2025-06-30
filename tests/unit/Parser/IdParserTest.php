@@ -2,16 +2,16 @@
 
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Parser\IdentifierParser;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
+use Mohachi\CommandLine\Parser\IdParser;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(IdentifierParser::class)]
-class IdentifierParserTest extends TestCase
+#[CoversClass(IdParser::class)]
+class IdParserTest extends TestCase
 {
     
     /* METHOD: parse */
@@ -19,8 +19,8 @@ class IdentifierParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new IdentifierParser;
-        $parser->append(new LongIdentifierToken("cmd"));
+        $parser = new IdParser;
+        $parser->append(new LongIdToken("cmd"));
         
         $this->expectException(UnderflowException::class);
         
@@ -31,20 +31,20 @@ class IdentifierParserTest extends TestCase
     public function parse_against_empty_id_list()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new LiteralIdentifierToken("cmd"));
+        $queue->enqueue(new LiteralIdToken("cmd"));
         
         $this->expectException(ParserException::class);
         
-        (new IdentifierParser)->parse($queue);
+        (new IdParser)->parse($queue);
     }
     
     #[Test]
     public function parse_unsatisfied_id()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new LongIdentifierToken("unexpected"));
-        $parser = new IdentifierParser;
-        $parser->append(new LongIdentifierToken("expected"));
+        $queue->enqueue(new LongIdToken("unexpected"));
+        $parser = new IdParser;
+        $parser->append(new LongIdToken("expected"));
         
         $this->expectException(ParserException::class);
         
@@ -55,8 +55,8 @@ class IdentifierParserTest extends TestCase
     public function parse_satisfied_id()
     {
         $queue = new TokenQueue;
-        $parser = new IdentifierParser;
-        $id = new LongIdentifierToken("expected");
+        $parser = new IdParser;
+        $id = new LongIdToken("expected");
         $queue->enqueue($id);
         $parser->append($id);
         

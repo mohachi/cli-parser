@@ -3,18 +3,18 @@
 namespace Mohachi\CommandLine\Parser;
 
 use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Token\Identifier\IdentifierTokenInterface;
+use Mohachi\CommandLine\Token\Id\IdTokenInterface;
 use Mohachi\CommandLine\TokenQueue;
 
-class IdentifierParser implements ParserInterface
+class IdParser implements ParserInterface
 {
     
     /**
-     * @var IdentifierTokenInterface[] $tokens
+     * @var IdTokenInterface[] $tokens
      */
     private array $tokens = [];
     
-    public function append(IdentifierTokenInterface $token)
+    public function append(IdTokenInterface $token)
     {
         $this->tokens[] = $token;
     }

@@ -1,15 +1,15 @@
 <?php
 
-use Mohachi\CommandLine\IdentifierTokenizer\LiteralIdentifierTokenizer;
-use Mohachi\CommandLine\IdentifierTokenizer\LongIdentifierTokenizer;
-use Mohachi\CommandLine\IdentifierTokenizer\ShortIdentifierTokenizer;
-use Mohachi\CommandLine\Normalizer;
+use Mohachi\CommandLine\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CommandLine\IdTokenizer\LongIdTokenizer;
+use Mohachi\CommandLine\IdTokenizer\ShortIdTokenizer;
+use Mohachi\CommandLine\Lexer;
 use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\ShortIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
+use Mohachi\CommandLine\Token\Id\ShortIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\TestCase;
 
@@ -26,18 +26,18 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 $cmd = [
     "name" => "ls",
     "ids" => [
-        "literal" => new LiteralIdentifierToken("ls")
+        "literal" => new LiteralIdToken("ls")
     ],
     "options" => [
         "all" => [
             "ids" => [
-                "long" => new LongIdentifierToken("--all"),
-                "short" => new ShortIdentifierToken("-a")
+                "long" => new LongIdToken("--all"),
+                "short" => new ShortIdToken("-a")
             ]
         ],
         "color" => [
             "ids" => [
-                "long" => new LongIdentifierToken("--color")
+                "long" => new LongIdToken("--color")
             ],
             "arguments" => [
                 "when" => null
@@ -45,8 +45,8 @@ $cmd = [
         ],
         "directory" => [
             "ids" => [
-                "long" => new LongIdentifierToken("--directory"),
-                "short" => new ShortIdentifierToken("-d")
+                "long" => new LongIdToken("--directory"),
+                "short" => new ShortIdToken("-d")
             ]
         ],
     ],
@@ -62,7 +62,7 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdentifierToken("ls"));
+                $queue->enqueue(new LiteralIdToken("ls"));
                 $queue->enqueue(new ArgumentToken("."));
                 return $queue;
             })(),
@@ -86,8 +86,8 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdentifierToken("ls"));
-                $queue->enqueue(new LongIdentifierToken("all"));
+                $queue->enqueue(new LiteralIdToken("ls"));
+                $queue->enqueue(new LongIdToken("all"));
                 $queue->enqueue(new ArgumentToken("."));
                 return $queue;
             })(),
@@ -117,8 +117,8 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdentifierToken("ls"));
-                $queue->enqueue(new LongIdentifierToken("color"));
+                $queue->enqueue(new LiteralIdToken("ls"));
+                $queue->enqueue(new LongIdToken("color"));
                 $queue->enqueue(new ArgumentToken("never"));
                 $queue->enqueue(new ArgumentToken("/"));
                 return $queue;
@@ -151,8 +151,8 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdentifierToken("ls"));
-                $queue->enqueue(new LongIdentifierToken("color"));
+                $queue->enqueue(new LiteralIdToken("ls"));
+                $queue->enqueue(new LongIdToken("color"));
                 $queue->enqueue(new ArgumentToken("always"));
                 $queue->enqueue(new ArgumentToken("~/Documents"));
                 return $queue;
@@ -185,11 +185,11 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdentifierToken("ls"));
-                $queue->enqueue(new LongIdentifierToken("directory"));
-                $queue->enqueue(new LongIdentifierToken("color"));
+                $queue->enqueue(new LiteralIdToken("ls"));
+                $queue->enqueue(new LongIdToken("directory"));
+                $queue->enqueue(new LongIdToken("color"));
                 $queue->enqueue(new ArgumentToken("always"));
-                $queue->enqueue(new LongIdentifierToken("all"));
+                $queue->enqueue(new LongIdToken("all"));
                 $queue->enqueue(new ArgumentToken("/var"));
                 return $queue;
             })(),
@@ -229,17 +229,17 @@ $examples = [
 
 /* Automation */
 
-$normalizer = new Normalizer;
-$normalizer->long = new LongIdentifierTokenizer;
-$normalizer->short = new ShortIdentifierTokenizer;
-$normalizer->literal = new LiteralIdentifierTokenizer;
+$lexer = new Lexer;
+$lexer->long = new LongIdTokenizer;
+$lexer->short = new ShortIdTokenizer;
+$lexer->literal = new LiteralIdTokenizer;
 
 $cmd["parser"] = new CommandParser($cmd["name"]);
 
 foreach( $cmd["ids"] as $type => $id )
 {
     $cmd["parser"]->id->append($id);
-    $normalizer->{$type}->append($id);
+    $lexer->{$type}->append($id);
 }
 
 foreach( $cmd["options"] as $name => $option )
@@ -249,7 +249,7 @@ foreach( $cmd["options"] as $name => $option )
     foreach( $option["ids"] as $type => $id )
     {
         $parser->id->append($id);
-        $normalizer->{$type}->append($id);
+        $lexer->{$type}->append($id);
     }
     
     if( isset($option["arguments"]) )
@@ -272,7 +272,7 @@ foreach( $cmd["arguments"] as $name => $criterion )
 
 foreach( $examples as $i => $example )
 {
-    $queue = $normalizer->normalize($example["line"]);
+    $queue = $lexer->lex($example["line"]);
     TestCase::assertEquals($example["expected"]["queue"], $queue);
     
     $syntax = $cmd["parser"]->parse($queue);

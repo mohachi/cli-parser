@@ -12,7 +12,7 @@ class CommandParser implements ParserInterface
     
     public function __construct(
         private string $name,
-        readonly IdentifierParser $id = new IdentifierParser,
+        readonly IdParser $id = new IdParser,
         readonly OptionsParser $options = new OptionsParser,
         readonly ArgumentsParser $arguments = new ArgumentsParser,
     )

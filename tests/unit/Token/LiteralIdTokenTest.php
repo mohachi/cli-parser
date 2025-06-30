@@ -1,13 +1,13 @@
 <?php
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(LiteralIdentifierToken::class)]
-class LiteralIdentifierTokenTest extends TestCase
+#[CoversClass(LiteralIdToken::class)]
+class LiteralIdTokenTest extends TestCase
 {
     
     /* METHOD: __construct */
@@ -17,7 +17,7 @@ class LiteralIdentifierTokenTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new LiteralIdentifierToken("");
+        new LiteralIdToken("");
     }
     
     #[Test]
@@ -25,7 +25,7 @@ class LiteralIdentifierTokenTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new LiteralIdentifierToken("-");
+        new LiteralIdToken("-");
     }
     
     /* METHOD: __toString */
@@ -33,7 +33,7 @@ class LiteralIdentifierTokenTest extends TestCase
     #[Test]
     public function cast_value_to_string()
     {
-        $token = new LiteralIdentifierToken("literal");
+        $token = new LiteralIdToken("literal");
         
         $this->assertSame("literal", (string) $token);
     }

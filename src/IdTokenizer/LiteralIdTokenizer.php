@@ -1,16 +1,16 @@
 <?php
 
-namespace Mohachi\CommandLine\IdentifierTokenizer;
+namespace Mohachi\CommandLine\IdTokenizer;
 
 use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 
-class LiteralIdentifierTokenizer implements IdentifierTokenizerInterface
+class LiteralIdTokenizer implements IdTokenizerInterface
 {
     
     private array $tokens = [];
     
-    public function append(LiteralIdentifierToken $token)
+    public function append(LiteralIdToken $token)
     {
         $this->tokens[(string) $token] = $token;
     }

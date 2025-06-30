@@ -1,15 +1,15 @@
 <?php
 
-use Mohachi\CommandLine\IdentifierTokenizer\LiteralIdentifierTokenizer;
-use Mohachi\CommandLine\IdentifierTokenizer\LongIdentifierTokenizer;
-use Mohachi\CommandLine\IdentifierTokenizer\ShortIdentifierTokenizer;
-use Mohachi\CommandLine\Normalizer;
+use Mohachi\CommandLine\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CommandLine\IdTokenizer\LongIdTokenizer;
+use Mohachi\CommandLine\IdTokenizer\ShortIdTokenizer;
+use Mohachi\CommandLine\Lexer;
 use Mohachi\CommandLine\Parser\CommandParser;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\ShortIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
+use Mohachi\CommandLine\Token\Id\ShortIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\TestCase;
 
@@ -26,71 +26,71 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 $cmd = [
     "name" => "sha256sum",
     "ids" => [
-        "literal" => new LiteralIdentifierToken("sha256sum")
+        "literal" => new LiteralIdToken("sha256sum")
     ],
     "options" => [
         "binary" => [
             "ids" => [
-                "long" => new LongIdentifierToken("binary"),
-                "short" => new ShortIdentifierToken("b")
+                "long" => new LongIdToken("binary"),
+                "short" => new ShortIdToken("b")
             ]
         ],
         "check" => [
             "ids" => [
-                "long" => new LongIdentifierToken("check"),
-                "short" => new ShortIdentifierToken("c")
+                "long" => new LongIdToken("check"),
+                "short" => new ShortIdToken("c")
             ]
         ],
         "help" => [
             "ids" => [
-                "long" => new LongIdentifierToken("help"),
+                "long" => new LongIdToken("help"),
             ]
         ],
         "ignore-missing" => [
             "ids" => [
-                "long" => new LongIdentifierToken("ignore-missing"),
+                "long" => new LongIdToken("ignore-missing"),
             ]
         ],
         "quiet" => [
             "ids" => [
-                "long" => new LongIdentifierToken("quiet"),
+                "long" => new LongIdToken("quiet"),
             ]
         ],
         "status" => [
             "ids" => [
-                "long" => new LongIdentifierToken("status"),
+                "long" => new LongIdToken("status"),
             ]
         ],
         "strict" => [
             "ids" => [
-                "long" => new LongIdentifierToken("strict"),
+                "long" => new LongIdToken("strict"),
             ]
         ],
         "tag" => [
             "ids" => [
-                "long" => new LongIdentifierToken("tag"),
+                "long" => new LongIdToken("tag"),
             ]
         ],
         "text" => [
             "ids" => [
-                "long" => new LongIdentifierToken("text"),
-                "short" => new ShortIdentifierToken("t")
+                "long" => new LongIdToken("text"),
+                "short" => new ShortIdToken("t")
             ]
         ],
         "version" => [
             "ids" => [
-                "long" => new LongIdentifierToken("version"),
+                "long" => new LongIdToken("version"),
             ]
         ],
         "warn" => [
             "ids" => [
-                "long" => new LongIdentifierToken("warn"),
-                "short" => new ShortIdentifierToken("w")
+                "long" => new LongIdToken("warn"),
+                "short" => new ShortIdToken("w")
             ]
         ],
         "zero" => [
             "ids" => [
-                "long" => new LongIdentifierToken("zero"),
+                "long" => new LongIdToken("zero"),
             ]
         ],
     ],
@@ -106,10 +106,10 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdentifierToken("sha256sum"));
-                $queue->enqueue(new LongIdentifierToken("ignore-missing"));
-                $queue->enqueue(new LongIdentifierToken("check"));
-                $queue->enqueue(new LongIdentifierToken("quiet"));
+                $queue->enqueue(new LiteralIdToken("sha256sum"));
+                $queue->enqueue(new LongIdToken("ignore-missing"));
+                $queue->enqueue(new LongIdToken("check"));
+                $queue->enqueue(new LongIdToken("quiet"));
                 $queue->enqueue(new ArgumentToken("path/to/file.sha256"));
                 return $queue;
             })(),
@@ -146,17 +146,17 @@ $examples = [
 
 /* Automation */
 
-$normalizer = new Normalizer;
-$normalizer->long = new LongIdentifierTokenizer;
-$normalizer->short = new ShortIdentifierTokenizer;
-$normalizer->literal = new LiteralIdentifierTokenizer;
+$lexer = new Lexer;
+$lexer->long = new LongIdTokenizer;
+$lexer->short = new ShortIdTokenizer;
+$lexer->literal = new LiteralIdTokenizer;
 
 $cmd["parser"] = new CommandParser($cmd["name"]);
 
 foreach( $cmd["ids"] as $type => $id )
 {
     $cmd["parser"]->id->append($id);
-    $normalizer->{$type}->append($id);
+    $lexer->{$type}->append($id);
 }
 
 foreach( $cmd["options"] as $name => $option )
@@ -166,7 +166,7 @@ foreach( $cmd["options"] as $name => $option )
     foreach( $option["ids"] as $type => $id )
     {
         $parser->id->append($id);
-        $normalizer->{$type}->append($id);
+        $lexer->{$type}->append($id);
     }
     
     if( isset($option["arguments"]) )
@@ -189,7 +189,7 @@ foreach( $cmd["arguments"] as $name => $criterion )
 
 foreach( $examples as $i => $example )
 {
-    $queue = $normalizer->normalize($example["line"]);
+    $queue = $lexer->lex($example["line"]);
     TestCase::assertEquals($example["expected"]["queue"], $queue);
     
     $syntax = $cmd["parser"]->parse($queue);

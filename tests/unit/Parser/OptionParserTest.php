@@ -4,8 +4,8 @@ use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Identifier\LiteralIdentifierToken;
-use Mohachi\CommandLine\Token\Identifier\LongIdentifierToken;
+use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CommandLine\Token\Id\LongIdToken;
 use Mohachi\CommandLine\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,7 +31,7 @@ class OptionParserTest extends TestCase
     public function parse_empty_stack()
     {
         $parser = new OptionParser("opt");
-        $parser->id->append(new LongIdentifierToken("opt"));
+        $parser->id->append(new LongIdToken("opt"));
         
         $this->expectException(UnderflowException::class);
         
@@ -43,8 +43,8 @@ class OptionParserTest extends TestCase
     {
         $queue = new TokenQueue;
         $parser = new OptionParser("opt");
-        $queue->enqueue(new LiteralIdentifierToken("unexpected"));
-        $parser->id->append(new LiteralIdentifierToken("expected"));
+        $queue->enqueue(new LiteralIdToken("unexpected"));
+        $parser->id->append(new LiteralIdToken("expected"));
         
         $this->expectException(ParserException::class);
         
@@ -54,7 +54,7 @@ class OptionParserTest extends TestCase
     #[Test]
     public function parse_unsatisfied_argument_parser()
     {
-        $id = new LongIdentifierToken("num");
+        $id = new LongIdToken("num");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new ArgumentToken("unexpected"));
@@ -70,7 +70,7 @@ class OptionParserTest extends TestCase
     #[Test]
     public function parse_satisfied_option()
     {
-        $id = new LongIdentifierToken("num");
+        $id = new LongIdToken("num");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new ArgumentToken("12"));

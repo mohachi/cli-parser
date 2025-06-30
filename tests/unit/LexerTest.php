@@ -2,20 +2,20 @@
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdentifierTokenizer\IdentifierTokenizerInterface;
-use Mohachi\CommandLine\Normalizer;
+use Mohachi\CommandLine\IdTokenizer\IdTokenizerInterface;
+use Mohachi\CommandLine\Lexer;
 use Mohachi\CommandLine\Token\ArgumentToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Normalizer::class)]
-class NormalizerTest extends TestCase
+#[CoversClass(Lexer::class)]
+class LexerTest extends TestCase
 {
     
-    public function get_unsatisfiable_tokenizer_extension(): IdentifierTokenizerInterface
+    public function get_unsatisfiable_tokenizer_extension(): IdTokenizerInterface
     {
-        $tokenizer = $this->createStub(IdentifierTokenizerInterface::class);
+        $tokenizer = $this->createStub(IdTokenizerInterface::class);
         $tokenizer->method("tokenize")->willThrowException(new TokenizerException);
         return $tokenizer;
     }
@@ -26,45 +26,45 @@ class NormalizerTest extends TestCase
     public function tokenize_empty_args()
     {
         $args = [];
-        $normalizer = new Normalizer;
-        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer = new Lexer;
+        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
-        $normalizer->normalize($args);
+        $lexer->lex($args);
     }
     
     #[Test]
     public function tokenize_non_list_args()
     {
         $args = [5 => "cmd"];
-        $normalizer = new Normalizer;
-        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer = new Lexer;
+        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
-        $normalizer->normalize($args);
+        $lexer->lex($args);
     }
     
     #[Test]
     public function tokenize_non_string_args()
     {
         $args = [[]];
-        $normalizer = new Normalizer;
-        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer = new Lexer;
+        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
-        $normalizer->normalize($args);
+        $lexer->lex($args);
     }
     
     #[Test]
     public function tokenize_against_empty_tokenizer_extensions()
     {
-        $normalizer = new Normalizer;
+        $lexer = new Lexer;
         $args = ["literal", "--long", "-s"];
         
-        $queue = $normalizer->normalize($args);
+        $queue = $lexer->lex($args);
         
         foreach( $args as $arg )
         {
@@ -77,12 +77,12 @@ class NormalizerTest extends TestCase
     #[Test]
     public function tokenize_unsatisfiable_args()
     {
-        $normalizer = new Normalizer;
+        $lexer = new Lexer;
         $args = ["first", "second"];
         $args = ["literal", "--long", "-s"];
-        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
-        $queue = $normalizer->normalize($args);
+        $queue = $lexer->lex($args);
         
         foreach( $args as $arg )
         {

@@ -4,19 +4,19 @@ namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdentifierTokenizer\IdentifierTokenizerInterface;
+use Mohachi\CommandLine\IdTokenizer\IdTokenizerInterface;
 use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\TokenQueue;
 
-class Normalizer
+class Lexer
 {
     
     /**
-     * @var IdentifierTokenizerInterface[] $tokenizers
+     * @var IdTokenizerInterface[] $tokenizers
      */
     private array $tokenizers = [];
     
-    public function append(string $name, IdentifierTokenizerInterface $tokenizer)
+    public function append(string $name, IdTokenizerInterface $tokenizer)
     {
         if( isset($this->tokenizers[$name]) )
         {
@@ -31,12 +31,12 @@ class Normalizer
         $this->append($name, $value);
     }
     
-    public function __get($name): IdentifierTokenizerInterface
+    public function __get($name): IdTokenizerInterface
     {
         return $this->tokenizers[$name];
     }
     
-    public function normalize(array &$args): TokenQueue
+    public function lex(array &$args): TokenQueue
     {
         switch( true )
         {

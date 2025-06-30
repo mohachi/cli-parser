@@ -1,20 +1,20 @@
 <?php
 
-namespace Mohachi\CommandLine\Token\Identifier;
+namespace Mohachi\CommandLine\Token\Id;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 
-class ShortIdentifierToken implements IdentifierTokenInterface
+class LongIdToken implements IdTokenInterface
 {
     
     public function __construct(public string $value)
     {
-        if( str_starts_with($value, "-") )
+        if( str_starts_with($value, "--") )
         {
-            $value = substr($value, 1);
+            $value = substr($value, 2);
         }
         
-        if( strlen($value) != 1 )
+        if( "" == $value )
         {
             throw new InvalidArgumentException();
         }
@@ -24,7 +24,7 @@ class ShortIdentifierToken implements IdentifierTokenInterface
     
     public function __toString(): string
     {
-        return "-" . $this->value;
+        return "--" . $this->value;
     }
     
 }

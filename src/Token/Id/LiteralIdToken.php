@@ -1,10 +1,10 @@
 <?php
 
-namespace Mohachi\CommandLine\Token\Identifier;
+namespace Mohachi\CommandLine\Token\Id;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 
-class LiteralIdentifierToken implements IdentifierTokenInterface
+class LiteralIdToken implements IdTokenInterface
 {
     
     public function __construct(public string $value)
