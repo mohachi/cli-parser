@@ -27,7 +27,7 @@ class NormalizerTest extends TestCase
     {
         $args = [];
         $normalizer = new Normalizer;
-        $normalizer->appeand("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -39,7 +39,7 @@ class NormalizerTest extends TestCase
     {
         $args = [5 => "cmd"];
         $normalizer = new Normalizer;
-        $normalizer->appeand("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -51,7 +51,7 @@ class NormalizerTest extends TestCase
     {
         $args = [[]];
         $normalizer = new Normalizer;
-        $normalizer->appeand("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -80,7 +80,7 @@ class NormalizerTest extends TestCase
         $normalizer = new Normalizer;
         $args = ["first", "second"];
         $args = ["literal", "--long", "-s"];
-        $normalizer->appeand("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $normalizer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
         
         $queue = $normalizer->normalize($args);
         
