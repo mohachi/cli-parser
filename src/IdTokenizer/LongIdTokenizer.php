@@ -1,10 +1,10 @@
 <?php
 
-namespace Mohachi\CommandLine\IdTokenizer;
+namespace Mohachi\CliParser\IdTokenizer;
 
-use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\LongIdToken;
+use Mohachi\CliParser\Exception\TokenizerException;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
 
 class LongIdTokenizer implements IdTokenizerInterface
 {

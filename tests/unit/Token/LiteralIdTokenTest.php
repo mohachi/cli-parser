@@ -1,7 +1,7 @@
 <?php
 
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Token\Id\LiteralIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

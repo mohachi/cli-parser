@@ -1,12 +1,12 @@
 <?php
 
-namespace Mohachi\CommandLine;
+namespace Mohachi\CliParser;
 
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdTokenizer\IdTokenizerInterface;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\TokenizerException;
+use Mohachi\CliParser\IdTokenizer\IdTokenizerInterface;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\TokenQueue;
 
 class Lexer
 {

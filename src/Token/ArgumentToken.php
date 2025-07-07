@@ -1,6 +1,6 @@
 <?php
 
-namespace Mohachi\CommandLine\Token;
+namespace Mohachi\CliParser\Token;
 
 class ArgumentToken implements TokenInterface
 {

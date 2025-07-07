@@ -1,10 +1,10 @@
 <?php
 
-use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdTokenizer\LongIdTokenizer;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\LongIdToken;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\TokenizerException;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

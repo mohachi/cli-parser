@@ -1,9 +1,9 @@
 <?php
 
-use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\IdTokenInterface;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\IdTokenInterface;
+use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

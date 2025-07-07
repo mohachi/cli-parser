@@ -1,8 +1,8 @@
 <?php
 
-namespace Mohachi\CommandLine\Exception;
+namespace Mohachi\CliParser\Exception;
 
-use Mohachi\CommandLine\Exception\Exception;
+use Mohachi\CliParser\Exception\Exception;
 
 class TokenizerException extends Exception
 {

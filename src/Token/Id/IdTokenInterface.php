@@ -1,8 +1,8 @@
 <?php
 
-namespace Mohachi\CommandLine\Token\Id;
+namespace Mohachi\CliParser\Token\Id;
 
-use Mohachi\CommandLine\Token\TokenInterface;
+use Mohachi\CliParser\Token\TokenInterface;
 
 interface IdTokenInterface extends TokenInterface
 {

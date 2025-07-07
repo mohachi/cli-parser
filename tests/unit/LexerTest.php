@@ -1,10 +1,10 @@
 <?php
 
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdTokenizer\IdTokenizerInterface;
-use Mohachi\CommandLine\Lexer;
-use Mohachi\CommandLine\Token\ArgumentToken;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\TokenizerException;
+use Mohachi\CliParser\IdTokenizer\IdTokenizerInterface;
+use Mohachi\CliParser\Lexer;
+use Mohachi\CliParser\Token\ArgumentToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

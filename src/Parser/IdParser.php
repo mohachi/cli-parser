@@ -1,10 +1,10 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CliParser\Parser;
 
-use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Token\Id\IdTokenInterface;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\ParserException;
+use Mohachi\CliParser\Token\Id\IdTokenInterface;
+use Mohachi\CliParser\TokenQueue;
 
 class IdParser implements ParserInterface
 {

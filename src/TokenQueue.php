@@ -1,9 +1,9 @@
 <?php
 
-namespace Mohachi\CommandLine;
+namespace Mohachi\CliParser;
 
-use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Token\TokenInterface;
+use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\Token\TokenInterface;
 
 class TokenQueue
 {

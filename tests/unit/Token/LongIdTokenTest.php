@@ -1,6 +1,6 @@
 <?php
 
-use Mohachi\CommandLine\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

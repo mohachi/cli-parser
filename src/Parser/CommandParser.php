@@ -1,9 +1,9 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CliParser\Parser;
 
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\TokenQueue;
 use stdClass;
 
 class CommandParser implements ParserInterface

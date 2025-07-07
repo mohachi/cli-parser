@@ -1,8 +1,8 @@
 <?php
 
-namespace Mohachi\CommandLine\Token\Id;
+namespace Mohachi\CliParser\Token\Id;
 
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
 
 class LongIdToken implements IdTokenInterface
 {

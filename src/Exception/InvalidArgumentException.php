@@ -1,6 +1,6 @@
 <?php
 
-namespace Mohachi\CommandLine\Exception;
+namespace Mohachi\CliParser\Exception;
 
 use InvalidArgumentException as GlobalInvalidArgumentException;
 

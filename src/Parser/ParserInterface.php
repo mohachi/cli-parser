@@ -1,8 +1,8 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CliParser\Parser;
 
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\TokenQueue;
 
 interface ParserInterface
 {
