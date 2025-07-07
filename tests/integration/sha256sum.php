@@ -1,10 +1,10 @@
 <?php
 
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\LiteralIdToken;
-use Mohachi\CommandLine\Token\Id\LongIdToken;
-use Mohachi\CommandLine\Token\Id\ShortIdToken;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\Id\ShortIdToken;
+use Mohachi\CliParser\TokenQueue;
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 

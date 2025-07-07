@@ -1,12 +1,12 @@
 <?php
 
-use Mohachi\CommandLine\Command;
-use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Option;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\LiteralIdToken;
-use Mohachi\CommandLine\Token\Id\LongIdToken;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Command;
+use Mohachi\CliParser\Exception\ParserException;
+use Mohachi\CliParser\Option;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

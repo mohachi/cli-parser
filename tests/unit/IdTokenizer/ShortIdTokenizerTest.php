@@ -1,9 +1,9 @@
 <?php
 
-use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\IdTokenizer\ShortIdTokenizer;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\ShortIdToken;
+use Mohachi\CliParser\Exception\TokenizerException;
+use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\ShortIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

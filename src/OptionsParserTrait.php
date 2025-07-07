@@ -1,11 +1,11 @@
 <?php
 
-namespace Mohachi\CommandLine;
+namespace Mohachi\CliParser;
 
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\ParserException;
+use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\TokenQueue;
 
 trait OptionsParserTrait
 {

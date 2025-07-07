@@ -1,8 +1,8 @@
 <?php
 
-namespace Mohachi\CommandLine\IdTokenizer;
+namespace Mohachi\CliParser\IdTokenizer;
 
-use Mohachi\CommandLine\Token\Id\IdTokenInterface;
+use Mohachi\CliParser\Token\Id\IdTokenInterface;
 
 interface IdTokenizerInterface
 {

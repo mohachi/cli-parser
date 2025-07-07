@@ -1,11 +1,11 @@
 <?php
 
-use Mohachi\CommandLine\IdParserTrait;
-use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Token\Id\LiteralIdToken;
-use Mohachi\CommandLine\Token\Id\LongIdToken;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\ParserException;
+use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\IdParserTrait;
+use Mohachi\CliParser\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

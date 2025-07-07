@@ -1,9 +1,9 @@
 <?php
 
-namespace Mohachi\CommandLine\IdTokenizer;
+namespace Mohachi\CliParser\IdTokenizer;
 
-use Mohachi\CommandLine\Exception\TokenizerException;
-use Mohachi\CommandLine\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Exception\TokenizerException;
+use Mohachi\CliParser\Token\Id\LiteralIdToken;
 
 class LiteralIdTokenizer implements IdTokenizerInterface
 {

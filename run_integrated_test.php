@@ -1,12 +1,12 @@
 #!/bin/env php
 <?php
 
-use Mohachi\CommandLine\IdTokenizer\LiteralIdTokenizer;
-use Mohachi\CommandLine\IdTokenizer\LongIdTokenizer;
-use Mohachi\CommandLine\IdTokenizer\ShortIdTokenizer;
-use Mohachi\CommandLine\Lexer;
-use Mohachi\CommandLine\Command;
-use Mohachi\CommandLine\Option;
+use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
+use Mohachi\CliParser\Lexer;
+use Mohachi\CliParser\Command;
+use Mohachi\CliParser\Option;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . "/vendor/autoload.php";

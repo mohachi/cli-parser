@@ -1,14 +1,14 @@
 <?php
 
-use Mohachi\CommandLine\OptionsParserTrait;
-use Mohachi\CommandLine\Exception\InvalidArgumentException;
-use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Option;
-use Mohachi\CommandLine\Token\ArgumentToken;
-use Mohachi\CommandLine\Token\Id\LiteralIdToken;
-use Mohachi\CommandLine\Token\Id\LongIdToken;
-use Mohachi\CommandLine\TokenQueue;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\ParserException;
+use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\Option;
+use Mohachi\CliParser\OptionsParserTrait;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
