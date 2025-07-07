@@ -1,6 +1,6 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
@@ -8,12 +8,12 @@ use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\TokenQueue;
 use stdClass;
 
-class ArgumentsParser implements ParserInterface
+trait ArgumentsParserTrait
 {
     
     private array $criteria = [];
     
-    public function append(string $name, ?callable $criterion = null)
+    public function arg(string $name, ?callable $criterion = null)
     {
         if( "" == $name || isset($this->criteria[$name]) )
         {
@@ -23,7 +23,7 @@ class ArgumentsParser implements ParserInterface
         $this->criteria[$name] = $criterion ?? fn() => true;
     }
     
-    public function parse(TokenQueue $queue): stdClass
+    public function parseArguments(TokenQueue $queue): stdClass
     {
         $arguments = [];
         

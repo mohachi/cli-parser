@@ -1,13 +1,13 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
 use Mohachi\CommandLine\TokenQueue;
 
-class OptionsParser implements ParserInterface
+trait OptionsParserTrait
 {
     
     /**
@@ -15,7 +15,7 @@ class OptionsParser implements ParserInterface
      */
     private array $parsers = [];
     
-    public function append(OptionParser $parser, int $min = 0, int $max = -1)
+    public function opt(Option $parser, int $min = 0, int $max = -1)
     {
         if( $min < 0 )
         {
@@ -39,7 +39,7 @@ class OptionsParser implements ParserInterface
         ];
     }
     
-    public function parse(TokenQueue $queue): array
+    public function parseOptions(TokenQueue $queue): array
     {
         $options = [];
         $rest = $this->parsers;

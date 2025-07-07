@@ -5,8 +5,8 @@ use Mohachi\CommandLine\IdTokenizer\LiteralIdTokenizer;
 use Mohachi\CommandLine\IdTokenizer\LongIdTokenizer;
 use Mohachi\CommandLine\IdTokenizer\ShortIdTokenizer;
 use Mohachi\CommandLine\Lexer;
-use Mohachi\CommandLine\Parser\CommandParser;
-use Mohachi\CommandLine\Parser\OptionParser;
+use Mohachi\CommandLine\Command;
+use Mohachi\CommandLine\Option;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . "/vendor/autoload.php";
@@ -42,21 +42,21 @@ foreach( $files as $file )
     ];
     
     $lexer = new Lexer;
-    $cmd["parser"] = new CommandParser($cmd["name"]);
+    $cmd["parser"] = new Command($cmd["name"]);
     
     foreach( $cmd["ids"] as $type => $id )
     {
-        $cmd["parser"]->id->append($id);
+        $cmd["parser"]->id($id);
         $tokenizers[$type]->append($id);
     }
     
     foreach( $cmd["options"] as $name => $option )
     {
-        $parser = new OptionParser($name);
+        $parser = new Option($name);
         
         foreach( $option["ids"] as $type => $id )
         {
-            $parser->id->append($id);
+            $parser->id($id);
             $tokenizers[$type]->append($id);
         }
         
@@ -64,16 +64,16 @@ foreach( $files as $file )
         {
             foreach( $option["arguments"] as $name => $criterion )
             {
-                $parser->arguments->append($name, $criterion);
+                $parser->arg($name, $criterion);
             }
         }
         
-        $cmd["parser"]->options->append($parser);
+        $cmd["parser"]->opt($parser);
     }
     
     foreach( $cmd["arguments"] as $name => $criterion )
     {
-        $cmd["parser"]->arguments->append($name, $criterion);
+        $cmd["parser"]->arg($name, $criterion);
     }
     
     foreach( $tokenizers as $name => $tokenizer )
@@ -91,4 +91,6 @@ foreach( $files as $file )
         $syntax = $cmd["parser"]->parse($queue);
         TestCase::assertEquals($example["expected"]["syntax"], $syntax);
     }
+    
+    echo "[\e[32mSuccess\e[0m] \e[33m$file\e[0m", PHP_EOL;
 }

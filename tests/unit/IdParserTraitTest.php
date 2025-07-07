@@ -1,17 +1,17 @@
 <?php
 
+use Mohachi\CommandLine\IdParserTrait;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Parser\IdParser;
 use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 use Mohachi\CommandLine\Token\Id\LongIdToken;
 use Mohachi\CommandLine\TokenQueue;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(IdParser::class)]
-class IdParserTest extends TestCase
+#[CoversTrait(IdParserTrait::class)]
+class IdParserTraitTest extends TestCase
 {
     
     /* METHOD: parse */
@@ -19,12 +19,12 @@ class IdParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new IdParser;
-        $parser->append(new LongIdToken("cmd"));
+        $parser = new IdParserStub;
+        $parser->id(new LongIdToken("cmd"));
         
         $this->expectException(UnderflowException::class);
         
-        $parser->parse(new TokenQueue);
+        $parser->parseId(new TokenQueue);
     }
     
     #[Test]
@@ -35,7 +35,7 @@ class IdParserTest extends TestCase
         
         $this->expectException(ParserException::class);
         
-        (new IdParser)->parse($queue);
+        (new IdParserStub)->parseId($queue);
     }
     
     #[Test]
@@ -43,26 +43,31 @@ class IdParserTest extends TestCase
     {
         $queue = new TokenQueue;
         $queue->enqueue(new LongIdToken("unexpected"));
-        $parser = new IdParser;
-        $parser->append(new LongIdToken("expected"));
+        $parser = new IdParserStub;
+        $parser->id(new LongIdToken("expected"));
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($queue);
+        $parser->parseId($queue);
     }
     
     #[Test]
     public function parse_satisfied_id()
     {
         $queue = new TokenQueue;
-        $parser = new IdParser;
+        $parser = new IdParserStub;
         $id = new LongIdToken("expected");
         $queue->enqueue($id);
-        $parser->append($id);
+        $parser->id($id);
         
-        $id = $parser->parse($queue);
+        $id = $parser->parseId($queue);
         
         $this->assertSame("--expected", $id);
     }
     
+}
+
+class IdParserStub
+{
+    use IdParserTrait;
 }

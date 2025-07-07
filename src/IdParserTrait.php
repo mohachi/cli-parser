@@ -1,12 +1,12 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Token\Id\IdTokenInterface;
 use Mohachi\CommandLine\TokenQueue;
 
-class IdParser implements ParserInterface
+trait IdParserTrait
 {
     
     /**
@@ -14,12 +14,12 @@ class IdParser implements ParserInterface
      */
     private array $tokens = [];
     
-    public function append(IdTokenInterface $token)
+    public function id(IdTokenInterface $token)
     {
         $this->tokens[] = $token;
     }
     
-    public function parse(TokenQueue $queue):  string
+    public function parseId(TokenQueue $queue):  string
     {
         foreach( $this->tokens as $token )
         {

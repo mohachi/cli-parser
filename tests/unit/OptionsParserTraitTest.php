@@ -1,20 +1,20 @@
 <?php
 
+use Mohachi\CommandLine\OptionsParserTrait;
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Parser\OptionParser;
-use Mohachi\CommandLine\Parser\OptionsParser;
+use Mohachi\CommandLine\Option;
 use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 use Mohachi\CommandLine\Token\Id\LongIdToken;
 use Mohachi\CommandLine\TokenQueue;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OptionsParser::class)]
-class OptionsParserTest extends TestCase
+#[CoversTrait(OptionsParserTrait::class)]
+class OptionsParserTraitTest extends TestCase
 {
     
     /* METHOD: append */
@@ -22,34 +22,34 @@ class OptionsParserTest extends TestCase
     #[Test]
     public function appent_negative_min()
     {
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LongIdToken("opt"));
+        $optParser = new Option("opt");
+        $optParser->id(new LongIdToken("opt"));
         
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParser)->append($optParser, -1);
+        (new OptionsParserStub)->opt($optParser, -1);
     }
     
     #[Test]
     public function appent_max_equal_to_zero()
     {
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LongIdToken("opt"));
+        $optParser = new Option("opt");
+        $optParser->id(new LongIdToken("opt"));
         
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParser)->append($optParser, 0, 0);
+        (new OptionsParserStub)->opt($optParser, 0, 0);
     }
     
     #[Test]
     public function appent_positive_max_less_than_min()
     {
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LongIdToken("opt"));
+        $optParser = new Option("opt");
+        $optParser->id(new LongIdToken("opt"));
         
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParser)->append($optParser, 5, 2);
+        (new OptionsParserStub)->opt($optParser, 5, 2);
     }
     
     /* METHOD: parse */
@@ -57,12 +57,12 @@ class OptionsParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new OptionsParser;
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LiteralIdToken("cmd"));
-        $parser->append($optParser);
+        $parser = new OptionsParserStub;
+        $optParser = new Option("opt");
+        $optParser->id(new LiteralIdToken("cmd"));
+        $parser->opt($optParser);
         
-        $options = $parser->parse(new TokenQueue);
+        $options = $parser->parseOptions(new TokenQueue);
         
         $this->assertEmpty($options);
     }
@@ -74,7 +74,7 @@ class OptionsParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         
-        $options = (new OptionsParser())->parse($queue);
+        $options = (new OptionsParserStub())->parseOptions($queue);
         
         $this->assertEmpty($options);
         $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
@@ -83,14 +83,14 @@ class OptionsParserTest extends TestCase
     #[Test]
     public function parse_required_option_agains_empty_queue()
     {
-        $parser = new OptionsParser;
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LongIdToken("opt"));
-        $parser->append($optParser, 1);
+        $parser = new OptionsParserStub;
+        $optParser = new Option("opt");
+        $optParser->id(new LongIdToken("opt"));
+        $parser->opt($optParser, 1);
         
         $this->expectException(UnderflowException::class);
         
-        $parser->parse(new TokenQueue);
+        $parser->parseOptions(new TokenQueue);
     }
     
     #[Test]
@@ -98,14 +98,14 @@ class OptionsParserTest extends TestCase
     {
         $queue = new TokenQueue;
         $queue->enqueue(new LiteralIdToken("extra"));
-        $parser = new OptionsParser;
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LongIdToken("opt"));
-        $parser->append($optParser, 1);
+        $parser = new OptionsParserStub;
+        $optParser = new Option("opt");
+        $optParser->id(new LongIdToken("opt"));
+        $parser->opt($optParser, 1);
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($queue);
+        $parser->parseOptions($queue);
     }
     
     #[Test]
@@ -115,12 +115,12 @@ class OptionsParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue($id);
-        $parser = new OptionsParser;
-        $optParser = new OptionParser("opt");
-        $optParser->id->append($id);
-        $parser->append($optParser, 0, 1);
+        $parser = new OptionsParserStub;
+        $optParser = new Option("opt");
+        $optParser->id($id);
+        $parser->opt($optParser, 0, 1);
         
-        $options = $parser->parse($queue);
+        $options = $parser->parseOptions($queue);
         
         $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
         $this->assertEquals("opt", $options[0]->name);
@@ -132,12 +132,12 @@ class OptionsParserTest extends TestCase
         $id = new LiteralIdToken("unexpected");
         $queue = new TokenQueue;
         $queue->enqueue($id);
-        $parser = new OptionsParser;
-        $optParser = new OptionParser("opt");
-        $optParser->id->append(new LiteralIdToken("expected"));
-        $parser->append($optParser);
+        $parser = new OptionsParserStub;
+        $optParser = new Option("opt");
+        $optParser->id(new LiteralIdToken("expected"));
+        $parser->opt($optParser);
         
-        $options = $parser->parse($queue);
+        $options = $parser->parseOptions($queue);
         
         $this->assertEmpty($options);
         $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
@@ -149,15 +149,15 @@ class OptionsParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue(new LongIdToken("opt"));
         $queue->enqueue(new LiteralIdToken("unexpected"));
-        $opt = new OptionParser("opt");
-        $opt->id->append(new LongIdToken("expected"));
-        $opt->arguments->append("arg", fn($v) => $v == "expected");
-        $parser = new OptionsParser;
-        $parser->append($opt, 1);
+        $opt = new Option("opt");
+        $opt->id(new LongIdToken("expected"));
+        $opt->arg("arg", fn($v) => $v == "expected");
+        $parser = new OptionsParserStub;
+        $parser->opt($opt, 1);
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($queue);
+        $parser->parseOptions($queue);
     }
     
     #[Test]
@@ -171,16 +171,16 @@ class OptionsParserTest extends TestCase
         $queue->enqueue($id1);
         $queue->enqueue($arg1);
         $queue->enqueue($id2);
-        $opt = new OptionParser("num");
-        $opt->id->append($id1);
-        $opt->arguments->append("value", fn(string $v) => is_numeric($v));
-        $parser = new OptionsParser;
-        $parser->append($opt);
-        $opt = new OptionParser("opt");
-        $opt->id->append($id2);
-        $parser->append($opt);
+        $opt = new Option("num");
+        $opt->id($id1);
+        $opt->arg("value", fn(string $v) => is_numeric($v));
+        $parser = new OptionsParserStub;
+        $parser->opt($opt);
+        $opt = new Option("opt");
+        $opt->id($id2);
+        $parser->opt($opt);
         
-        $options = $parser->parse($queue);
+        $options = $parser->parseOptions($queue);
         
         $this->assertCount(3, $options);
         $this->assertEquals("opt", $options[0]->name);
@@ -188,4 +188,9 @@ class OptionsParserTest extends TestCase
         $this->assertEquals("opt", $options[2]->name);
     }
     
+}
+
+class OptionsParserStub
+{
+    use OptionsParserTrait;
 }

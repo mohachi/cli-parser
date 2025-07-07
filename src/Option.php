@@ -1,19 +1,16 @@
 <?php
 
-namespace Mohachi\CommandLine\Parser;
+namespace Mohachi\CommandLine;
 
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\TokenQueue;
 use stdClass;
 
-class OptionParser implements ParserInterface
+class Option
 {
+    use IdParserTrait, ArgumentsParserTrait;
     
-    public function __construct(
-        readonly string $name,
-        readonly IdParser $id = new IdParser,
-        readonly ArgumentsParser $arguments = new ArgumentsParser
-    )
+    public function __construct(readonly string $name)
     {
         if( "" == $name )
         {
@@ -25,8 +22,8 @@ class OptionParser implements ParserInterface
     {
         $option = new stdClass;
         $option->name = $this->name;
-        $option->id = $this->id->parse($queue);
-        $option->arguments = $this->arguments->parse($queue);
+        $option->id = $this->parseId($queue);
+        $option->arguments = $this->parseArguments($queue);
         return $option;
     }
     

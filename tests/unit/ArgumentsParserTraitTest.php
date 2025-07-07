@@ -1,17 +1,17 @@
 <?php
 
+use Mohachi\CommandLine\ArgumentsParserTrait;
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
 use Mohachi\CommandLine\Exception\UnderflowException;
-use Mohachi\CommandLine\Parser\ArgumentsParser;
 use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\TokenQueue;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ArgumentsParser::class)]
-class ArgumentsParserTest extends TestCase
+#[CoversTrait(ArgumentsParserTrait::class)]
+class ArgumentsParserTraitTest extends TestCase
 {
     
     /* METHOD: append */
@@ -21,7 +21,7 @@ class ArgumentsParserTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new ArgumentsParser)->append("");
+        (new ArgumentsParserStub)->arg("");
     }
     
     /* METHOD: parse */
@@ -29,12 +29,12 @@ class ArgumentsParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new ArgumentsParser;
-        $parser->append("arg");
+        $parser = new ArgumentsParserStub;
+        $parser->arg("arg");
         
         $this->expectException(UnderflowException::class);
         
-        $parser->parse(new TokenQueue);
+        $parser->parseArguments(new TokenQueue);
     }
     
     #[Test]
@@ -43,7 +43,7 @@ class ArgumentsParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue(new ArgumentToken("cmd"));
         
-        $arguments = (new ArgumentsParser)->parse($queue);
+        $arguments = (new ArgumentsParserStub)->parseArguments($queue);
         
         $this->assertObjectNotHasProperty("cmd", $arguments);
     }
@@ -53,12 +53,12 @@ class ArgumentsParserTest extends TestCase
     {
         $queue = new TokenQueue;
         $queue->enqueue(new ArgumentToken("unexpected"));
-        $parser = new ArgumentsParser;
-        $parser->append("num", fn($v) => is_numeric($v));
+        $parser = new ArgumentsParserStub;
+        $parser->arg("num", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
-        $parser->parse($queue);
+        $parser->parseArguments($queue);
     }
     
     #[Test]
@@ -67,13 +67,18 @@ class ArgumentsParserTest extends TestCase
         $queue = new TokenQueue;
         $arg = new ArgumentToken("26");
         $queue->enqueue($arg);
-        $parser = new ArgumentsParser;
-        $parser->append("num", fn($v) => is_numeric($v));
+        $parser = new ArgumentsParserStub;
+        $parser->arg("num", fn($v) => is_numeric($v));
         
-        $arguments = $parser->parse($queue);
+        $arguments = $parser->parseArguments($queue);
         
         $this->assertObjectHasProperty("num", $arguments);
         $this->assertEquals($arguments->num, 26);
     }
     
+}
+
+class ArgumentsParserStub
+{
+    use ArgumentsParserTrait;
 }

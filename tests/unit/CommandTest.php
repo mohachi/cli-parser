@@ -1,8 +1,8 @@
 <?php
 
-use Mohachi\CommandLine\Parser\CommandParser;
+use Mohachi\CommandLine\Command;
 use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Parser\OptionParser;
+use Mohachi\CommandLine\Option;
 use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 use Mohachi\CommandLine\Token\Id\LongIdToken;
@@ -11,8 +11,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(CommandParser::class)]
-class CommandParserTest extends TestCase
+#[CoversClass(Command::class)]
+class CommandTest extends TestCase
 {
     
     /* METHOD: construct */
@@ -22,7 +22,7 @@ class CommandParserTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new CommandParser("");
+        new Command("");
     }
     
     /* METHOD: parse */
@@ -30,8 +30,8 @@ class CommandParserTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new CommandParser("cmd");
-        $parser->id->append(new LiteralIdToken("cmd"));
+        $parser = new Command("cmd");
+        $parser->id(new LiteralIdToken("cmd"));
         
         $this->expectException(UnderflowException::class);
         
@@ -42,8 +42,8 @@ class CommandParserTest extends TestCase
     public function parse_unsatisfied_id()
     {
         $queue = new TokenQueue;
-        $parser = new CommandParser("cmd");
-        $parser->id->append(new LiteralIdToken("cmd"));
+        $parser = new Command("cmd");
+        $parser->id(new LiteralIdToken("cmd"));
         $queue->enqueue(new LiteralIdToken("unexpected"));
         
         $this->expectException(ParserException::class);
@@ -58,9 +58,9 @@ class CommandParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new LiteralIdToken("unexpected"));
-        $parser = new CommandParser("number");
-        $parser->id->append($id);
-        $parser->arguments->append("arg", fn($v) => is_numeric($v));
+        $parser = new Command("number");
+        $parser->id($id);
+        $parser->arg("arg", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
@@ -77,12 +77,12 @@ class CommandParserTest extends TestCase
         $queue->enqueue($id1);
         $queue->enqueue($id2);
         $queue->enqueue($arg);
-        $parser = new CommandParser("cmd");
-        $parser->id->append($id1);
-        $parser->arguments->append("arg");
-        $optParser = new OptionParser("opt");
-        $optParser->id->append($id2);
-        $parser->options->append($optParser);
+        $parser = new Command("cmd");
+        $parser->id($id1);
+        $parser->arg("arg");
+        $optParser = new Option("opt");
+        $optParser->id($id2);
+        $parser->opt($optParser);
         
         $command = $parser->parse($queue);
         

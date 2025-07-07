@@ -1,8 +1,8 @@
 <?php
 
+use Mohachi\CommandLine\Option;
 use Mohachi\CommandLine\Exception\InvalidArgumentException;
 use Mohachi\CommandLine\Exception\ParserException;
-use Mohachi\CommandLine\Parser\OptionParser;
 use Mohachi\CommandLine\Token\ArgumentToken;
 use Mohachi\CommandLine\Token\Id\LiteralIdToken;
 use Mohachi\CommandLine\Token\Id\LongIdToken;
@@ -11,8 +11,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OptionParser::class)]
-class OptionParserTest extends TestCase
+#[CoversClass(Option::class)]
+class OptionTest extends TestCase
 {
     
     /* METHOD: construct */
@@ -22,7 +22,7 @@ class OptionParserTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new OptionParser("");
+        new Option("");
     }
     
     /* METHOD: parse */
@@ -30,8 +30,8 @@ class OptionParserTest extends TestCase
     #[Test]
     public function parse_empty_stack()
     {
-        $parser = new OptionParser("opt");
-        $parser->id->append(new LongIdToken("opt"));
+        $parser = new Option("opt");
+        $parser->id(new LongIdToken("opt"));
         
         $this->expectException(UnderflowException::class);
         
@@ -42,9 +42,9 @@ class OptionParserTest extends TestCase
     public function parse_unsatisfied_id_parser()
     {
         $queue = new TokenQueue;
-        $parser = new OptionParser("opt");
+        $parser = new Option("opt");
         $queue->enqueue(new LiteralIdToken("unexpected"));
-        $parser->id->append(new LiteralIdToken("expected"));
+        $parser->id(new LiteralIdToken("expected"));
         
         $this->expectException(ParserException::class);
         
@@ -58,9 +58,9 @@ class OptionParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new ArgumentToken("unexpected"));
-        $parser = new OptionParser("number");
-        $parser->id->append($id);
-        $parser->arguments->append("arg", fn($v) => is_numeric($v));
+        $parser = new Option("number");
+        $parser->id($id);
+        $parser->arg("arg", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
@@ -74,9 +74,9 @@ class OptionParserTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new ArgumentToken("12"));
-        $parser = new OptionParser("number");
-        $parser->id->append($id);
-        $parser->arguments->append("arg", fn(string $v) => is_numeric($v));
+        $parser = new Option("number");
+        $parser->id($id);
+        $parser->arg("arg", fn(string $v) => is_numeric($v));
         
         $option = $parser->parse($queue);
         
