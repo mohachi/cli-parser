@@ -1,20 +1,16 @@
 # PHP Command line
 
-PHP Command line utility.
-
-## Features
-
-- Command line parser.
+PHP Command line parser.
 
 ## Installation
 
 via composer:
 
 ```sh
-composer require mohachi/command-line
+composer require mohachi/cli-parser
 ```
 
-**Note:** don't forget to run `composer install` if you clone this repo.
+**Note:** don't forget to run `composer install` if you clone from github repo.
 
 ## Run tests
 

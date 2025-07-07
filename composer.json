@@ -1,6 +1,6 @@
 {
-    "name": "mohachi/command-line",
-    "description": "PHP Command line unitlity",
+    "name": "mohachi/cli-parser",
+    "description": "PHP Command line parser",
     "type": "lib",
     "require-dev": {
         "symfony/var-dumper": "^7.3",
