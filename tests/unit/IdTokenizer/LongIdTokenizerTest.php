@@ -2,7 +2,6 @@
 
 use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

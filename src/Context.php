@@ -5,9 +5,8 @@ namespace Mohachi\CliParser;
 use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\Exception\ParserException;
 use Mohachi\CliParser\Exception\UnderflowException;
-use Mohachi\CliParser\TokenQueue;
 
-trait OptionsParserTrait
+abstract class Context extends Component
 {
     
     /**

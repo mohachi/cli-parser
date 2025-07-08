@@ -3,7 +3,6 @@
 namespace Mohachi\CliParser\IdTokenizer;
 
 use Mohachi\CliParser\Exception\InvalidArgumentException;
-use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
 

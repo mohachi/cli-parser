@@ -2,7 +2,6 @@
 
 use Mohachi\CliParser\Command;
 use Mohachi\CliParser\Exception\ParserException;
-use Mohachi\CliParser\Option;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;

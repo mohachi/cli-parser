@@ -6,11 +6,10 @@ use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\TokenQueue;
 use stdClass;
 
-class Option
+class Option extends Component
 {
-    use IdParserTrait, ArgumentsParserTrait;
     
-    public function __construct(readonly string $name)
+    public function __construct(private string $name)
     {
         if( "" == $name )
         {

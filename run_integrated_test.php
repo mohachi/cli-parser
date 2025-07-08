@@ -6,7 +6,6 @@ use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
 use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
 use Mohachi\CliParser\Lexer;
 use Mohachi\CliParser\Command;
-use Mohachi\CliParser\Option;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . "/vendor/autoload.php";

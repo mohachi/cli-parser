@@ -5,13 +5,28 @@ namespace Mohachi\CliParser;
 use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\Exception\ParserException;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\TokenQueue;
+use Mohachi\CliParser\Token\IdToken;
 use stdClass;
 
-trait ArgumentsParserTrait
+abstract class Component
 {
     
+    /**
+     * @var list<IdToken> $tokens
+     */
+    private array $tokens = [];
+    
+    /**
+     * @var array<string,callable> $arguments
+     */
     private array $arguments = [];
+    
+    public function id(IdToken $token): self
+    {
+        $this->tokens[] = $token;
+        
+        return $this;
+    }
     
     public function arg(string $name, ?callable $criterion = null): self
     {
@@ -23,6 +38,16 @@ trait ArgumentsParserTrait
         $this->arguments[$name] = $criterion ?? fn() => true;
         
         return $this;
+    }
+    
+    public function parseId(TokenQueue $queue):  string
+    {
+        if( in_array($queue->getHead(), $this->tokens, true) )
+        {
+            return (string) $queue->dequeue();
+        }
+        
+        throw new ParserException();
     }
     
     public function parseArguments(TokenQueue $queue): stdClass

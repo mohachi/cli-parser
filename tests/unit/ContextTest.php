@@ -1,19 +1,16 @@
 <?php
 
-use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Context;
 use Mohachi\CliParser\Exception\ParserException;
-use Mohachi\CliParser\Exception\UnderflowException;
-use Mohachi\CliParser\Option;
-use Mohachi\CliParser\OptionsParserTrait;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
-use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversTrait(OptionsParserTrait::class)]
-class OptionsParserTraitTest extends TestCase
+#[CoversClass(Context::class)]
+class ContextTest extends TestCase
 {
     
     /* METHOD: append */
@@ -23,7 +20,7 @@ class OptionsParserTraitTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParserStub)->opt("opt", -1);
+        (new ConcrecteContext)->opt("opt", -1);
     }
     
     #[Test]
@@ -31,7 +28,7 @@ class OptionsParserTraitTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParserStub)->opt("opt", 0, 0);
+        (new ConcrecteContext)->opt("opt", 0, 0);
     }
     
     #[Test]
@@ -39,7 +36,7 @@ class OptionsParserTraitTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParserStub)->opt("opt", 5, 2);
+        (new ConcrecteContext)->opt("opt", 5, 2);
     }
     
     /* METHOD: parse */
@@ -47,7 +44,7 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function parse_empty_queue()
     {
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $parser->opt("opt")->id(new IdToken("--opt"));
         
         $options = $parser->parseOptions(new TokenQueue);
@@ -62,7 +59,7 @@ class OptionsParserTraitTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         
-        $options = (new OptionsParserStub())->parseOptions($queue);
+        $options = (new ConcrecteContext())->parseOptions($queue);
         
         $this->assertEmpty($options);
         $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
@@ -71,7 +68,7 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function parse_required_option_agains_empty_queue()
     {
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $parser->opt("opt", 1)->id(new IdToken("--opt"));
         
         $this->expectException(UnderflowException::class);
@@ -83,7 +80,7 @@ class OptionsParserTraitTest extends TestCase
     public function parse_insufficient_option_min()
     {
         $queue = new TokenQueue;
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $queue->enqueue(new IdToken("extra"));
         $parser->opt("opt", 1)->id(new IdToken("--opt"));
         
@@ -99,7 +96,7 @@ class OptionsParserTraitTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue($id);
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $parser->opt("opt", 0, 1)->id($id);
         
         $options = $parser->parseOptions($queue);
@@ -114,7 +111,7 @@ class OptionsParserTraitTest extends TestCase
         $id = new IdToken("unexpected");
         $queue = new TokenQueue;
         $queue->enqueue($id);
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $parser->opt("opt")->id(new IdToken("expected"));
         
         $options = $parser->parseOptions($queue);
@@ -129,7 +126,7 @@ class OptionsParserTraitTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue(new IdToken("--opt"));
         $queue->enqueue(new IdToken("unexpected"));
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $parser->opt("opt", 1)
             ->id(new IdToken("--expected"))
             ->arg("arg", fn($v) => $v == "expected");
@@ -150,7 +147,7 @@ class OptionsParserTraitTest extends TestCase
         $queue->enqueue($id1);
         $queue->enqueue($arg1);
         $queue->enqueue($id2);
-        $parser = new OptionsParserStub;
+        $parser = new ConcrecteContext;
         $parser->opt("num")
             ->id($id1)
             ->arg("value", fn(string $v) => is_numeric($v));
@@ -167,7 +164,7 @@ class OptionsParserTraitTest extends TestCase
     
 }
 
-class OptionsParserStub
+class ConcrecteContext extends Context
 {
-    use OptionsParserTrait;
+    
 }

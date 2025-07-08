@@ -6,9 +6,8 @@ use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\TokenQueue;
 use stdClass;
 
-class Command
+class Command extends Context
 {
-    use IdParserTrait, ArgumentsParserTrait, OptionsParserTrait;
     
     public function __construct(private string $name)
     {

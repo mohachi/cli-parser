@@ -5,16 +5,10 @@ use Mohachi\CliParser\Token\ArgumentToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\VarDumper\VarDumper;
 
 #[CoversClass(ShortIdTokenizer::class)]
 class ShortIdTokenizerTest extends TestCase
 {
-    
-    public static function setUpBeforeClass(): void
-    {
-        disable();
-    }
     
     /* METHOD: tokenize */
     
@@ -55,9 +49,7 @@ class ShortIdTokenizerTest extends TestCase
         $tokenizer->create("n");
         $tokenizer->create("g");
         
-        enable();
         $tokens = $tokenizer->tokenize("--long");
-        disable();
         
         $this->assertNull($tokens);
     }
@@ -128,14 +120,4 @@ class ShortIdTokenizerTest extends TestCase
         $this->assertEquals([$token, new ArgumentToken("arg")], $tokens);
     }
     
-}
-
-function disable()
-{
-    VarDumper::setHandler(fn() => null);
-}
-
-function enable()
-{
-    VarDumper::setHandler(null);
 }
