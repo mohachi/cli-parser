@@ -11,23 +11,25 @@ use stdClass;
 trait ArgumentsParserTrait
 {
     
-    private array $criteria = [];
+    private array $arguments = [];
     
-    public function arg(string $name, ?callable $criterion = null)
+    public function arg(string $name, ?callable $criterion = null): self
     {
-        if( "" == $name || isset($this->criteria[$name]) )
+        if( "" == $name || isset($this->arguments[$name]) )
         {
             throw new InvalidArgumentException();
         }
         
-        $this->criteria[$name] = $criterion ?? fn() => true;
+        $this->arguments[$name] = $criterion ?? fn() => true;
+        
+        return $this;
     }
     
     public function parseArguments(TokenQueue $queue): stdClass
     {
         $arguments = [];
         
-        foreach( $this->criteria as $name => $criterion )
+        foreach( $this->arguments as $name => $criterion )
         {
             if( ! $queue->getHead() instanceof ArgumentToken )
             {

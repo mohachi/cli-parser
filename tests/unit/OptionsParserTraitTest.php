@@ -21,34 +21,25 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function appent_negative_min()
     {
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("--opt"));
-        
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParserStub)->opt($optParser, -1);
+        (new OptionsParserStub)->opt("opt", -1);
     }
     
     #[Test]
     public function appent_max_equal_to_zero()
     {
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("--opt"));
-        
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParserStub)->opt($optParser, 0, 0);
+        (new OptionsParserStub)->opt("opt", 0, 0);
     }
     
     #[Test]
     public function appent_positive_max_less_than_min()
     {
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("--opt"));
-        
         $this->expectException(InvalidArgumentException::class);
         
-        (new OptionsParserStub)->opt($optParser, 5, 2);
+        (new OptionsParserStub)->opt("opt", 5, 2);
     }
     
     /* METHOD: parse */
@@ -57,9 +48,7 @@ class OptionsParserTraitTest extends TestCase
     public function parse_empty_queue()
     {
         $parser = new OptionsParserStub;
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("cmd"));
-        $parser->opt($optParser);
+        $parser->opt("opt")->id(new IdToken("--opt"));
         
         $options = $parser->parseOptions(new TokenQueue);
         
@@ -83,9 +72,7 @@ class OptionsParserTraitTest extends TestCase
     public function parse_required_option_agains_empty_queue()
     {
         $parser = new OptionsParserStub;
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("--opt"));
-        $parser->opt($optParser, 1);
+        $parser->opt("opt", 1)->id(new IdToken("--opt"));
         
         $this->expectException(UnderflowException::class);
         
@@ -96,11 +83,9 @@ class OptionsParserTraitTest extends TestCase
     public function parse_insufficient_option_min()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new IdToken("extra"));
         $parser = new OptionsParserStub;
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("--opt"));
-        $parser->opt($optParser, 1);
+        $queue->enqueue(new IdToken("extra"));
+        $parser->opt("opt", 1)->id(new IdToken("--opt"));
         
         $this->expectException(ParserException::class);
         
@@ -115,9 +100,7 @@ class OptionsParserTraitTest extends TestCase
         $queue->enqueue($id);
         $queue->enqueue($id);
         $parser = new OptionsParserStub;
-        $optParser = new Option("opt");
-        $optParser->id($id);
-        $parser->opt($optParser, 0, 1);
+        $parser->opt("opt", 0, 1)->id($id);
         
         $options = $parser->parseOptions($queue);
         
@@ -132,9 +115,7 @@ class OptionsParserTraitTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $parser = new OptionsParserStub;
-        $optParser = new Option("opt");
-        $optParser->id(new IdToken("expected"));
-        $parser->opt($optParser);
+        $parser->opt("opt")->id(new IdToken("expected"));
         
         $options = $parser->parseOptions($queue);
         
@@ -148,11 +129,10 @@ class OptionsParserTraitTest extends TestCase
         $queue = new TokenQueue;
         $queue->enqueue(new IdToken("--opt"));
         $queue->enqueue(new IdToken("unexpected"));
-        $opt = new Option("opt");
-        $opt->id(new IdToken("--expected"));
-        $opt->arg("arg", fn($v) => $v == "expected");
         $parser = new OptionsParserStub;
-        $parser->opt($opt, 1);
+        $parser->opt("opt", 1)
+            ->id(new IdToken("--expected"))
+            ->arg("arg", fn($v) => $v == "expected");
         
         $this->expectException(ParserException::class);
         
@@ -170,14 +150,12 @@ class OptionsParserTraitTest extends TestCase
         $queue->enqueue($id1);
         $queue->enqueue($arg1);
         $queue->enqueue($id2);
-        $opt = new Option("num");
-        $opt->id($id1);
-        $opt->arg("value", fn(string $v) => is_numeric($v));
         $parser = new OptionsParserStub;
-        $parser->opt($opt);
-        $opt = new Option("opt");
-        $opt->id($id2);
-        $parser->opt($opt);
+        $parser->opt("num")
+            ->id($id1)
+            ->arg("value", fn(string $v) => is_numeric($v));
+        $parser->opt("opt")
+            ->id($id2);
         
         $options = $parser->parseOptions($queue);
         

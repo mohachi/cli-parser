@@ -36,39 +36,37 @@ foreach( $files as $file )
     /* Automation */
     
     $lexer = new Lexer;
+    $command = new Command($cmd["name"]);
     $lexer->register(new LongIdTokenizer);
     $lexer->register(new ShortIdTokenizer);
     $lexer->register(new LiteralIdTokenizer);
-    $cmd["parser"] = new Command($cmd["name"]);
     
     foreach( $cmd["ids"] as $type => $id )
     {
-        $cmd["parser"]->id($lexer->get($type)->create($id));
+        $command->id($lexer->get($type)->create($id));
     }
     
-    foreach( $cmd["options"] as $name => $option )
+    foreach( $cmd["options"] as $name => $opt )
     {
-        $parser = new Option($name);
+        $options = $command->opt($name);
         
-        foreach( $option["ids"] as $type => $id )
+        foreach( $opt["ids"] as $type => $id )
         {
-            $parser->id($lexer->get($type)->create($id));
+            $options->id($lexer->get($type)->create($id));
         }
         
-        if( isset($option["arguments"]) )
+        if( isset($opt["arguments"]) )
         {
-            foreach( $option["arguments"] as $name => $criterion )
+            foreach( $opt["arguments"] as $name => $criterion )
             {
-                $parser->arg($name, $criterion);
+                $options->arg($name, $criterion);
             }
         }
-        
-        $cmd["parser"]->opt($parser);
     }
     
     foreach( $cmd["arguments"] as $name => $criterion )
     {
-        $cmd["parser"]->arg($name, $criterion);
+        $command->arg($name, $criterion);
     }
     
     /* Run tests */
@@ -78,7 +76,7 @@ foreach( $files as $file )
         $queue = $lexer->lex($example["line"]);
         TestCase::assertEquals($example["expected"]["queue"], $queue);
         
-        $syntax = $cmd["parser"]->parse($queue);
+        $syntax = $command->parse($queue);
         TestCase::assertEquals($example["expected"]["syntax"], $syntax);
     }
     

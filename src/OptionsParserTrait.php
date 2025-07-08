@@ -11,11 +11,11 @@ trait OptionsParserTrait
 {
     
     /**
-     * @var object[] $parsers
+     * @var object[] $options
      */
-    private array $parsers = [];
+    private array $options = [];
     
-    public function opt(Option $parser, int $min = 0, int $max = -1)
+    public function opt(string $name, int $min = 0, int $max = -1): Option
     {
         if( $min < 0 )
         {
@@ -27,35 +27,37 @@ trait OptionsParserTrait
             throw new InvalidArgumentException("invalid maximum value");
         }
         
-        if( isset($this->parsers[$parser->name]) )
+        if( isset($this->options[$name]) )
         {
             throw new InvalidArgumentException("duplicate parser");
         }
         
-        $this->parsers[$parser->name] = [
+        $this->options[$name] = [
             "min" => $min,
             "max" => $max,
-            "parser" => $parser
+            "option" => new Option($name),
         ];
+        
+        return $this->options[$name]["option"];
     }
     
     public function parseOptions(TokenQueue $queue): array
     {
         $options = [];
-        $rest = $this->parsers;
+        $rest = $this->options;
         
         do
         {
             $parsed = false;
             
             /**
-             * @var OptionParser $parser
+             * @var Option $option
              */
-            foreach( $rest as $i => ["min" => &$min, "max" => &$max, "parser" => $parser])
+            foreach( $rest as $i => ["min" => &$min, "max" => &$max, "option" => $option])
             {
                 try
                 {
-                    $options[] = $parser->parse($queue);
+                    $options[] = $option->parse($queue);
                     $min--;
                     $max--;
                     $parsed = true;

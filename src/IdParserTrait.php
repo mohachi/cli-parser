@@ -14,9 +14,11 @@ trait IdParserTrait
      */
     private array $tokens = [];
     
-    public function id(IdToken $token)
+    public function id(IdToken $token): self
     {
         $this->tokens[] = $token;
+        
+        return $this;
     }
     
     public function parseId(TokenQueue $queue):  string

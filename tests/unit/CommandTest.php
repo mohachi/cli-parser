@@ -79,9 +79,8 @@ class CommandTest extends TestCase
         $parser = new Command("cmd");
         $parser->id($id1);
         $parser->arg("arg");
-        $optParser = new Option("opt");
-        $optParser->id($id2);
-        $parser->opt($optParser);
+        $parser->opt("opt")
+            ->id($id2);
         
         $command = $parser->parse($queue);
         
