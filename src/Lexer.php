@@ -3,7 +3,6 @@
 namespace Mohachi\CliParser;
 
 use Mohachi\CliParser\Exception\InvalidArgumentException;
-use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\IdTokenizer\IdTokenizerInterface;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\TokenQueue;
@@ -12,28 +11,30 @@ class Lexer
 {
     
     /**
-     * @var IdTokenizerInterface[] $tokenizers
+     * @var array<string,IdTokenizerInterface> $tokenizers
      */
     private array $tokenizers = [];
     
-    public function append(string $name, IdTokenizerInterface $tokenizer)
+    public function register(IdTokenizerInterface $tokenizer)
     {
-        if( isset($this->tokenizers[$name]) )
+        $type = get_class($tokenizer);
+        
+        if( isset($this->tokenizers[$type]) )
         {
             throw new InvalidArgumentException();
         }
         
-        $this->tokenizers[$name] = $tokenizer;
+        $this->tokenizers[$type] = $tokenizer;
     }
     
-    public function __set($name, $value)
+    function get(string $type): IdTokenizerInterface
     {
-        $this->append($name, $value);
-    }
-    
-    public function __get($name): IdTokenizerInterface
-    {
-        return $this->tokenizers[$name];
+        if( ! isset($this->tokenizers[$type]) )
+        {
+            throw new InvalidArgumentException();
+        }
+        
+        return $this->tokenizers[$type];
     }
     
     public function lex(array &$args): TokenQueue

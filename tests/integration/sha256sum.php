@@ -1,5 +1,8 @@
 <?php
 
+use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
@@ -7,71 +10,71 @@ use Mohachi\CliParser\TokenQueue;
 $cmd = [
     "name" => "sha256sum",
     "ids" => [
-        "literal" => "sha256sum"
+        LiteralIdTokenizer::class => "sha256sum"
     ],
     "options" => [
         "binary" => [
             "ids" => [
-                "long" => "binary",
-                "short" => "b",
+                LongIdTokenizer::class => "binary",
+                ShortIdTokenizer::class => "b",
             ],
         ],
         "check" => [
             "ids" => [
-                "long" => "check",
-                "short" => "c",
+                LongIdTokenizer::class => "check",
+                ShortIdTokenizer::class => "c",
             ],
         ],
         "help" => [
             "ids" => [
-                "long" => "help",
+                LongIdTokenizer::class => "help",
             ],
         ],
         "ignore-missing" => [
             "ids" => [
-                "long" => "ignore-missing",
+                LongIdTokenizer::class => "ignore-missing",
             ],
         ],
         "quiet" => [
             "ids" => [
-                "long" => "quiet",
+                LongIdTokenizer::class => "quiet",
             ],
         ],
         "status" => [
             "ids" => [
-                "long" => "status",
+                LongIdTokenizer::class => "status",
             ],
         ],
         "strict" => [
             "ids" => [
-                "long" => "strict",
+                LongIdTokenizer::class => "strict",
             ],
         ],
         "tag" => [
             "ids" => [
-                "long" => "tag",
+                LongIdTokenizer::class => "tag",
             ],
         ],
         "text" => [
             "ids" => [
-                "long" => "text",
-                "short" => "t",
+                LongIdTokenizer::class => "text",
+                ShortIdTokenizer::class => "t",
             ],
         ],
         "version" => [
             "ids" => [
-                "long" => "version",
+                LongIdTokenizer::class => "version",
             ],
         ],
         "warn" => [
             "ids" => [
-                "long" => "warn",
-                "short" => "w",
+                LongIdTokenizer::class => "warn",
+                ShortIdTokenizer::class => "w",
             ],
         ],
         "zero" => [
             "ids" => [
-                "long" => "zero",
+                LongIdTokenizer::class => "zero",
             ],
         ],
     ],

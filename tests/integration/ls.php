@@ -1,5 +1,8 @@
 <?php
 
+use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
@@ -7,18 +10,18 @@ use Mohachi\CliParser\TokenQueue;
 $cmd = [
     "name" => "ls",
     "ids" => [
-        "literal" => "ls",
+        LiteralIdTokenizer::class => "ls",
     ],
     "options" => [
         "all" => [
             "ids" => [
-                "long" => "--all",
-                "short" => "-a",
+                LongIdTokenizer::class => "--all",
+                ShortIdTokenizer::class => "-a",
             ],
         ],
         "color" => [
             "ids" => [
-                "long" => "--color",
+                LongIdTokenizer::class => "--color",
             ],
             "arguments" => [
                 "when" => null,
@@ -26,8 +29,8 @@ $cmd = [
         ],
         "directory" => [
             "ids" => [
-                "long" => "--directory",
-                "short" => "-d",
+                LongIdTokenizer::class => "--directory",
+                ShortIdTokenizer::class => "-d",
             ],
         ],
     ],

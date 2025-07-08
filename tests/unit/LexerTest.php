@@ -26,7 +26,7 @@ class LexerTest extends TestCase
     {
         $args = [];
         $lexer = new Lexer;
-        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -38,7 +38,7 @@ class LexerTest extends TestCase
     {
         $args = [5 => "cmd"];
         $lexer = new Lexer;
-        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -50,7 +50,7 @@ class LexerTest extends TestCase
     {
         $args = [[]];
         $lexer = new Lexer;
-        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -79,7 +79,7 @@ class LexerTest extends TestCase
         $lexer = new Lexer;
         $args = ["first", "second"];
         $args = ["literal", "--long", "-s"];
-        $lexer->append("tokenizer", $this->get_unsatisfiable_tokenizer_extension());
+        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
         
         $queue = $lexer->lex($args);
         

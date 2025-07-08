@@ -35,18 +35,15 @@ foreach( $files as $file )
     
     /* Automation */
     
-    $tokenizers = [
-        "long" => new LongIdTokenizer,
-        "short" => new ShortIdTokenizer,
-        "literal" => new LiteralIdTokenizer,
-    ];
-    
     $lexer = new Lexer;
+    $lexer->register(new LongIdTokenizer);
+    $lexer->register(new ShortIdTokenizer);
+    $lexer->register(new LiteralIdTokenizer);
     $cmd["parser"] = new Command($cmd["name"]);
     
     foreach( $cmd["ids"] as $type => $id )
     {
-        $cmd["parser"]->id($tokenizers[$type]->create($id));
+        $cmd["parser"]->id($lexer->get($type)->create($id));
     }
     
     foreach( $cmd["options"] as $name => $option )
@@ -55,7 +52,7 @@ foreach( $files as $file )
         
         foreach( $option["ids"] as $type => $id )
         {
-            $parser->id($tokenizers[$type]->create($id));
+            $parser->id($lexer->get($type)->create($id));
         }
         
         if( isset($option["arguments"]) )
@@ -72,11 +69,6 @@ foreach( $files as $file )
     foreach( $cmd["arguments"] as $name => $criterion )
     {
         $cmd["parser"]->arg($name, $criterion);
-    }
-    
-    foreach( $tokenizers as $name => $tokenizer )
-    {
-        $lexer->append($name, $tokenizer);
     }
     
     /* Run tests */
