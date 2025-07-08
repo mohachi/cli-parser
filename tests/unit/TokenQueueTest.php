@@ -1,8 +1,8 @@
 <?php
 
 use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\Token\AbstractToken;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\IdTokenInterface;
 use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,7 +24,7 @@ class TokenQueueTest extends TestCase
     public function is_empty_of_non_empty_queue()
     {
         $queue = new TokenQueue;
-        $queue->enqueue($this->createStub(IdTokenInterface::class));
+        $queue->enqueue($this->createStub(AbstractToken::class));
         
         $this->assertFalse($queue->isEmpty());
     }

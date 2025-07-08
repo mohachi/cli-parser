@@ -3,13 +3,13 @@
 namespace Mohachi\CliParser;
 
 use Mohachi\CliParser\Exception\UnderflowException;
-use Mohachi\CliParser\Token\TokenInterface;
+use Mohachi\CliParser\Token\AbstractToken;
 
 class TokenQueue
 {
     
     /**
-     * @var TokenInterface[] $tokens
+     * @var AbstractToken[] $tokens
      */
     private array $tokens = [];
     
@@ -18,12 +18,12 @@ class TokenQueue
         return empty($this->tokens);
     }
     
-    public function enqueue(TokenInterface $token)
+    public function enqueue(AbstractToken $token)
     {
         $this->tokens[] = $token;
     }
     
-    public function getHead(): TokenInterface
+    public function getHead(): AbstractToken
     {
         if( empty($this->tokens) )
         {
@@ -33,7 +33,7 @@ class TokenQueue
         return $this->tokens[0];
     }
     
-    public function dequeue(): TokenInterface
+    public function dequeue(): AbstractToken
     {
         if( empty($this->tokens) )
         {

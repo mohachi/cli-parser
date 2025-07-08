@@ -1,51 +1,39 @@
 <?php
 
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
-use Mohachi\CliParser\Token\Id\ShortIdToken;
+use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
-
-require_once __DIR__ . "/../../vendor/autoload.php";
-
-/* Index
-    1. Declaration - the declaration of the command and examples.
-    2. Automation - automatic creation of tokenizers and parsers.
-    3. Run test - automatic run of example tests.
-*/
-
-/* Declaration */
 
 $cmd = [
     "name" => "ls",
     "ids" => [
-        "literal" => new LiteralIdToken("ls")
+        "literal" => "ls",
     ],
     "options" => [
         "all" => [
             "ids" => [
-                "long" => new LongIdToken("--all"),
-                "short" => new ShortIdToken("-a")
-            ]
+                "long" => "--all",
+                "short" => "-a",
+            ],
         ],
         "color" => [
             "ids" => [
-                "long" => new LongIdToken("--color")
+                "long" => "--color",
             ],
             "arguments" => [
-                "when" => null
-            ]
+                "when" => null,
+            ],
         ],
         "directory" => [
             "ids" => [
-                "long" => new LongIdToken("--directory"),
-                "short" => new ShortIdToken("-d")
-            ]
+                "long" => "--directory",
+                "short" => "-d",
+            ],
         ],
     ],
     "arguments" => [
-        "target" => null
-    ]
+        "target" => null,
+    ],
 ];
 
 $examples = [
@@ -55,22 +43,19 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdToken("ls"));
+                $queue->enqueue(new IdToken("ls"));
                 $queue->enqueue(new ArgumentToken("."));
                 return $queue;
             })(),
-            "syntax" => (function()
-            {
-                return (object) [
-                    "name" => "ls",
-                    "id" => "ls",
-                    "options" => [],
-                    "arguments" => (object) [
-                        "target" => "."
-                    ]
-                ];
-            })()
-        ]
+            "syntax" => (object) [
+                "name" => "ls",
+                "id" => "ls",
+                "options" => [],
+                "arguments" => (object) [
+                    "target" => ".",
+                ],
+            ],
+        ],
     ],
     
     [
@@ -79,29 +64,26 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdToken("ls"));
-                $queue->enqueue(new LongIdToken("all"));
+                $queue->enqueue(new IdToken("ls"));
+                $queue->enqueue(new IdToken("--all"));
                 $queue->enqueue(new ArgumentToken("."));
                 return $queue;
             })(),
-            "syntax" => (function()
-            {
-                return (object) [
-                    "name" => "ls",
-                    "id" => "ls",
-                    "options" => [
-                        (object) [
-                            "name" => "all",
-                            "id" => "--all",
-                            "arguments" => (object) []
-                        ]
+            "syntax" => (object) [
+                "name" => "ls",
+                "id" => "ls",
+                "options" => [
+                    (object) [
+                        "name" => "all",
+                        "id" => "--all",
+                        "arguments" => (object) [],
                     ],
-                    "arguments" => (object) [
-                        "target" => "."
-                    ]
-                ];
-            })()
-        ]
+                ],
+                "arguments" => (object) [
+                    "target" => ".",
+                ],
+            ],
+        ],
     ],
     
     [
@@ -110,32 +92,29 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdToken("ls"));
-                $queue->enqueue(new LongIdToken("color"));
+                $queue->enqueue(new IdToken("ls"));
+                $queue->enqueue(new IdToken("--color"));
                 $queue->enqueue(new ArgumentToken("never"));
                 $queue->enqueue(new ArgumentToken("/"));
                 return $queue;
             })(),
-            "syntax" => (function()
-            {
-                return (object) [
-                    "name" => "ls",
-                    "id" => "ls",
-                    "options" => [
-                        (object) [
-                            "name" => "color",
-                            "id" => "--color",
-                            "arguments" => (object) [
-                                "when" => "never"
-                            ]
-                        ]
+            "syntax" => (object) [
+                "name" => "ls",
+                "id" => "ls",
+                "options" => [
+                    (object) [
+                        "name" => "color",
+                        "id" => "--color",
+                        "arguments" => (object) [
+                            "when" => "never",
+                        ],
                     ],
-                    "arguments" => (object) [
-                        "target" => "/"
-                    ]
-                ];
-            })()
-        ]
+                ],
+                "arguments" => (object) [
+                    "target" => "/",
+                ],
+            ],
+        ],
     ],
     
     [
@@ -144,32 +123,29 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdToken("ls"));
-                $queue->enqueue(new LongIdToken("color"));
+                $queue->enqueue(new IdToken("ls"));
+                $queue->enqueue(new IdToken("--color"));
                 $queue->enqueue(new ArgumentToken("always"));
                 $queue->enqueue(new ArgumentToken("~/Documents"));
                 return $queue;
             })(),
-            "syntax" => (function()
-            {
-                return (object) [
-                    "name" => "ls",
-                    "id" => "ls",
-                    "options" => [
-                        (object) [
-                            "name" => "color",
-                            "id" => "--color",
-                            "arguments" => (object) [
-                                "when" => "always"
-                            ]
-                        ]
+            "syntax" => (object) [
+                "name" => "ls",
+                "id" => "ls",
+                "options" => [
+                    (object) [
+                        "name" => "color",
+                        "id" => "--color",
+                        "arguments" => (object) [
+                            "when" => "always",
+                        ],
                     ],
-                    "arguments" => (object) [
-                        "target" => "~/Documents"
-                    ]
-                ];
-            })()
-        ]
+                ],
+                "arguments" => (object) [
+                    "target" => "~/Documents",
+                ],
+            ],
+        ],
     ],
     
     [
@@ -178,44 +154,40 @@ $examples = [
             "queue" => (function()
             {
                 $queue = new TokenQueue;
-                $queue->enqueue(new LiteralIdToken("ls"));
-                $queue->enqueue(new LongIdToken("directory"));
-                $queue->enqueue(new LongIdToken("color"));
+                $queue->enqueue(new IdToken("ls"));
+                $queue->enqueue(new IdToken("--directory"));
+                $queue->enqueue(new IdToken("--color"));
                 $queue->enqueue(new ArgumentToken("always"));
-                $queue->enqueue(new LongIdToken("all"));
+                $queue->enqueue(new IdToken("--all"));
                 $queue->enqueue(new ArgumentToken("/var"));
                 return $queue;
             })(),
-            "syntax" => (function()
-            {
-                return (object) [
-                    "name" => "ls",
-                    "id" => "ls",
-                    "options" => [
-                        (object) [
-                            "name" => "directory",
-                            "id" => "--directory",
-                            "arguments" => (object) []
-                        ],
-                        (object) [
-                            "name" => "color",
-                            "id" => "--color",
-                            "arguments" => (object) [
-                                "when" => "always"
-                            ]
-                        ],
-                        (object) [
-                            "name" => "all",
-                            "id" => "--all",
-                            "arguments" => (object) []
+            "syntax" => (object) [
+                "name" => "ls",
+                "id" => "ls",
+                "options" => [
+                    (object) [
+                        "name" => "directory",
+                        "id" => "--directory",
+                        "arguments" => (object) [],
+                    ],
+                    (object) [
+                        "name" => "color",
+                        "id" => "--color",
+                        "arguments" => (object) [
+                            "when" => "always",
                         ],
                     ],
-                    "arguments" => (object) [
-                        "target" => "/var"
-                    ]
-                ];
-            })()
-        ]
+                    (object) [
+                        "name" => "all",
+                        "id" => "--all",
+                        "arguments" => (object) [],
+                    ],
+                ],
+                "arguments" => (object) [
+                    "target" => "/var",
+                ],
+            ],
+        ],
     ],
-    
 ];

@@ -6,8 +6,7 @@ use Mohachi\CliParser\Exception\UnderflowException;
 use Mohachi\CliParser\Option;
 use Mohachi\CliParser\OptionsParserTrait;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +22,7 @@ class OptionsParserTraitTest extends TestCase
     public function appent_negative_min()
     {
         $optParser = new Option("opt");
-        $optParser->id(new LongIdToken("opt"));
+        $optParser->id(new IdToken("--opt"));
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -34,7 +33,7 @@ class OptionsParserTraitTest extends TestCase
     public function appent_max_equal_to_zero()
     {
         $optParser = new Option("opt");
-        $optParser->id(new LongIdToken("opt"));
+        $optParser->id(new IdToken("--opt"));
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -45,7 +44,7 @@ class OptionsParserTraitTest extends TestCase
     public function appent_positive_max_less_than_min()
     {
         $optParser = new Option("opt");
-        $optParser->id(new LongIdToken("opt"));
+        $optParser->id(new IdToken("--opt"));
         
         $this->expectException(InvalidArgumentException::class);
         
@@ -59,7 +58,7 @@ class OptionsParserTraitTest extends TestCase
     {
         $parser = new OptionsParserStub;
         $optParser = new Option("opt");
-        $optParser->id(new LiteralIdToken("cmd"));
+        $optParser->id(new IdToken("cmd"));
         $parser->opt($optParser);
         
         $options = $parser->parseOptions(new TokenQueue);
@@ -70,7 +69,7 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function parse_against_empty_parsers()
     {
-        $id = new LiteralIdToken("cmd");
+        $id = new IdToken("cmd");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         
@@ -85,7 +84,7 @@ class OptionsParserTraitTest extends TestCase
     {
         $parser = new OptionsParserStub;
         $optParser = new Option("opt");
-        $optParser->id(new LongIdToken("opt"));
+        $optParser->id(new IdToken("--opt"));
         $parser->opt($optParser, 1);
         
         $this->expectException(UnderflowException::class);
@@ -97,10 +96,10 @@ class OptionsParserTraitTest extends TestCase
     public function parse_insufficient_option_min()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new LiteralIdToken("extra"));
+        $queue->enqueue(new IdToken("extra"));
         $parser = new OptionsParserStub;
         $optParser = new Option("opt");
-        $optParser->id(new LongIdToken("opt"));
+        $optParser->id(new IdToken("--opt"));
         $parser->opt($optParser, 1);
         
         $this->expectException(ParserException::class);
@@ -111,7 +110,7 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function parse_overwhelmed_option()
     {
-        $id = new LongIdToken("opt");
+        $id = new IdToken("--opt");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue($id);
@@ -129,12 +128,12 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function parse_unsatisfied_option_id()
     {
-        $id = new LiteralIdToken("unexpected");
+        $id = new IdToken("unexpected");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $parser = new OptionsParserStub;
         $optParser = new Option("opt");
-        $optParser->id(new LiteralIdToken("expected"));
+        $optParser->id(new IdToken("expected"));
         $parser->opt($optParser);
         
         $options = $parser->parseOptions($queue);
@@ -147,10 +146,10 @@ class OptionsParserTraitTest extends TestCase
     public function parse_unsatisfied_option_arguments()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new LongIdToken("opt"));
-        $queue->enqueue(new LiteralIdToken("unexpected"));
+        $queue->enqueue(new IdToken("--opt"));
+        $queue->enqueue(new IdToken("unexpected"));
         $opt = new Option("opt");
-        $opt->id(new LongIdToken("expected"));
+        $opt->id(new IdToken("--expected"));
         $opt->arg("arg", fn($v) => $v == "expected");
         $parser = new OptionsParserStub;
         $parser->opt($opt, 1);
@@ -163,9 +162,9 @@ class OptionsParserTraitTest extends TestCase
     #[Test]
     public function parse_satisfied_option()
     {
-        $id1 = new LongIdToken("num");
+        $id1 = new IdToken("--num");
         $arg1 = new ArgumentToken("12");
-        $id2 = new LongIdToken("opt");
+        $id2 = new IdToken("--opt");
         $queue = new TokenQueue;
         $queue->enqueue($id2);
         $queue->enqueue($id1);

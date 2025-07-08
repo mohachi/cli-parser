@@ -1,9 +1,6 @@
 <?php
 
-use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
-use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -18,38 +15,37 @@ class LiteralIdTokenizerTest extends TestCase
     public function tokenize_empty_input()
     {
         $tokenizer = new LiteralIdTokenizer;
-        $tokenizer->append(new LiteralIdToken("id"));
+        $tokenizer->create("id");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("");
         
-        $tokenizer->tokenize("");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_against_empty_tokens()
     {
-        $this->expectException(TokenizerException::class);
+        $tokens = (new LiteralIdTokenizer)->tokenize("unexpected");
         
-        (new LiteralIdTokenizer)->tokenize("unexpected");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_unsatisfactory_input()
     {
         $tokenizer = new LiteralIdTokenizer;
-        $tokenizer->append(new LiteralIdToken("expected"));
+        $tokenizer->create("expected");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("unexpected");
         
-        $tokenizer->tokenize("unexpected");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_satisfactory_input()
     {
-        $token = new LiteralIdToken("expected");
         $tokenizer = new LiteralIdTokenizer;
-        $tokenizer->append($token);
+        $token = $tokenizer->create("expected");
         
         $tokens = $tokenizer->tokenize("expected");
         

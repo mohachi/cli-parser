@@ -2,24 +2,38 @@
 
 namespace Mohachi\CliParser\IdTokenizer;
 
+use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\Exception\TokenizerException;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
+use Mohachi\CliParser\Token\IdToken;
 
 class LiteralIdTokenizer implements IdTokenizerInterface
 {
     
+    /**
+     * @var list<string,IdToken> $token
+     */
     private array $tokens = [];
     
-    public function append(LiteralIdToken $token)
+    public function create(string $value): IdToken
     {
-        $this->tokens[(string) $token] = $token;
+        if( "" == $value || "-" == $value[0] )
+        {
+            throw new InvalidArgumentException();
+        }
+        
+        if( isset($this->tokens[$value]) )
+        {
+            return $this->tokens[$value];
+        }
+        
+        return $this->tokens[$value] = new IdToken($value);
     }
     
-    public function tokenize(string $input): array
+    public function tokenize(string $input): ?array
     {
         if( ! isset($this->tokens[$input]) )
         {
-            throw new TokenizerException();
+            return null;
         }
         
         return [$this->tokens[$input]];

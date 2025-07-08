@@ -1,7 +1,6 @@
 <?php
 
 use Mohachi\CliParser\Exception\InvalidArgumentException;
-use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\IdTokenizer\IdTokenizerInterface;
 use Mohachi\CliParser\Lexer;
 use Mohachi\CliParser\Token\ArgumentToken;
@@ -16,7 +15,7 @@ class LexerTest extends TestCase
     public function get_unsatisfiable_tokenizer_extension(): IdTokenizerInterface
     {
         $tokenizer = $this->createStub(IdTokenizerInterface::class);
-        $tokenizer->method("tokenize")->willThrowException(new TokenizerException);
+        $tokenizer->method("tokenize");
         return $tokenizer;
     }
     

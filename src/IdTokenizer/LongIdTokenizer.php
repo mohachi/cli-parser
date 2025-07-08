@@ -2,57 +2,62 @@
 
 namespace Mohachi\CliParser\IdTokenizer;
 
+use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\IdToken;
 
 class LongIdTokenizer implements IdTokenizerInterface
 {
     
     /**
-     * @var LongIdToken[] $tokens
+     * @var list<string,IdToken> $token
      */
     private array $tokens = [];
     
-    public function append(LongIdToken $token)
+    public function create(string $value): IdToken
     {
-        $this->tokens[] = $token;
+        if( "" == $value || "-" == $value || "--" == $value )
+        {
+            throw new InvalidArgumentException();
+        }
+        
+        if( ! str_starts_with($value, "--") )
+        {
+            $value = "--$value";
+        }
+        
+        if( isset($this->tokens[$value]) )
+        {
+            return $this->tokens[$value];
+        }
+        
+        return $this->tokens[$value] = new IdToken($value);
     }
     
-    public function tokenize(string $input): array
+    public function tokenize(string $input): ?array
     {
         if( "" == $input || ! str_starts_with($input, "--") )
         {
-            throw new TokenizerException();
+            return null;
         }
         
-        $token = null;
-        $input = substr($input, 2);
-        rsort($this->tokens, SORT_NATURAL);
+        $delimiter = strpos($input, "=");
+        $id = substr($input, 0, false !== $delimiter ? $delimiter : null);
         
-        foreach( $this->tokens as $token )
+        if( ! isset($this->tokens[$id]) )
         {
-            if( str_starts_with($input, $token->value) )
-            {
-                $input = substr($input, strlen($token->value));
-                break;
-            }
+            return null;
         }
         
-        if( null === $token )
+        if( false === $delimiter )
         {
-            throw new TokenizerException();
+            return [$this->tokens[$id]];
         }
         
-        if( "" == $input )
-        {
-            return [$token];
-        }
-        elseif( "=" !== $input[0] )
-        {
-            throw new TokenizerException();
-        }
-        
-        return [$token, new ArgumentToken(substr($input, 1))];
+        return [
+            $this->tokens[$id],
+            new ArgumentToken(substr($input, $delimiter + 1)),
+        ];
     }
 }

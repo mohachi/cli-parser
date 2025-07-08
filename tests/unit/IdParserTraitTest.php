@@ -3,8 +3,7 @@
 use Mohachi\CliParser\Exception\ParserException;
 use Mohachi\CliParser\Exception\UnderflowException;
 use Mohachi\CliParser\IdParserTrait;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Test;
@@ -20,7 +19,7 @@ class IdParserTraitTest extends TestCase
     public function parse_empty_queue()
     {
         $parser = new IdParserStub;
-        $parser->id(new LongIdToken("cmd"));
+        $parser->id(new IdToken("--cmd"));
         
         $this->expectException(UnderflowException::class);
         
@@ -31,7 +30,7 @@ class IdParserTraitTest extends TestCase
     public function parse_against_empty_id_list()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new LiteralIdToken("cmd"));
+        $queue->enqueue(new IdToken("cmd"));
         
         $this->expectException(ParserException::class);
         
@@ -42,9 +41,9 @@ class IdParserTraitTest extends TestCase
     public function parse_unsatisfied_id()
     {
         $queue = new TokenQueue;
-        $queue->enqueue(new LongIdToken("unexpected"));
+        $queue->enqueue(new IdToken("--unexpected"));
         $parser = new IdParserStub;
-        $parser->id(new LongIdToken("expected"));
+        $parser->id(new IdToken("--expected"));
         
         $this->expectException(ParserException::class);
         
@@ -56,7 +55,7 @@ class IdParserTraitTest extends TestCase
     {
         $queue = new TokenQueue;
         $parser = new IdParserStub;
-        $id = new LongIdToken("expected");
+        $id = new IdToken("--expected");
         $queue->enqueue($id);
         $parser->id($id);
         

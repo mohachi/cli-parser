@@ -1,16 +1,20 @@
 <?php
 
-use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\ShortIdToken;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\VarDumper\VarDumper;
 
 #[CoversClass(ShortIdTokenizer::class)]
 class ShortIdTokenizerTest extends TestCase
 {
+    
+    public static function setUpBeforeClass(): void
+    {
+        disable();
+    }
     
     /* METHOD: tokenize */
     
@@ -18,72 +22,72 @@ class ShortIdTokenizerTest extends TestCase
     public function tokenize_empty_input()
     {
         $tokenizer = new ShortIdTokenizer;
-        $tokenizer->append(new ShortIdToken("i"));
+        $tokenizer->create("i");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("");
         
-        $tokenizer->tokenize("");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_literal_input()
     {
         $tokenizer = new ShortIdTokenizer;
-        $tokenizer->append(new ShortIdToken("l"));
-        $tokenizer->append(new ShortIdToken("i"));
-        $tokenizer->append(new ShortIdToken("t"));
-        $tokenizer->append(new ShortIdToken("e"));
-        $tokenizer->append(new ShortIdToken("r"));
-        $tokenizer->append(new ShortIdToken("a"));
-        $tokenizer->append(new ShortIdToken("l"));
+        $tokenizer->create("l");
+        $tokenizer->create("i");
+        $tokenizer->create("t");
+        $tokenizer->create("e");
+        $tokenizer->create("r");
+        $tokenizer->create("a");
+        $tokenizer->create("l");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("literal");
         
-        $tokenizer->tokenize("literal");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_long_input()
     {
         $tokenizer = new ShortIdTokenizer;
-        $tokenizer->append(new ShortIdToken("l"));
-        $tokenizer->append(new ShortIdToken("o"));
-        $tokenizer->append(new ShortIdToken("n"));
-        $tokenizer->append(new ShortIdToken("g"));
+        $tokenizer->create("l");
+        $tokenizer->create("o");
+        $tokenizer->create("n");
+        $tokenizer->create("g");
         
-        $this->expectException(TokenizerException::class);
+        enable();
+        $tokens = $tokenizer->tokenize("--long");
+        disable();
         
-        $tokenizer->tokenize("--long");
+        $this->assertNull($tokens);
     }
     
     #[Test]
     public function tokenize_against_empty_tokens()
     {
-        $this->expectException(TokenizerException::class);
+        $tokens = (new ShortIdTokenizer)->tokenize("-i");
         
-        (new ShortIdTokenizer)->tokenize("-i");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_unsatisfied_tokens()
     {
         $tokenizer = new ShortIdTokenizer;
-        $tokenizer->append(new ShortIdToken("1"));
-        $tokenizer->append(new ShortIdToken("2"));
+        $tokenizer->create("1");
+        $tokenizer->create("2");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("-0");
         
-        $tokenizer->tokenize("-0");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_input_that_satisfies_multiple_tokens()
     {
-        $token_1 = new ShortIdToken("1");
-        $token_2 = new ShortIdToken("2");
         $tokenizer = new ShortIdTokenizer;
-        $tokenizer->append($token_1);
-        $tokenizer->append($token_2);
+        $token_1 = $tokenizer->create("1");
+        $token_2 = $tokenizer->create("2");
         
         $tokens = $tokenizer->tokenize("-2121");
         
@@ -94,20 +98,19 @@ class ShortIdTokenizerTest extends TestCase
     public function tokenize_input_that_contains_unsatisfactory_ids()
     {
         $tokenizer = new ShortIdTokenizer;
-        $tokenizer->append(new ShortIdToken("1"));
-        $tokenizer->append(new ShortIdToken("2"));
+        $tok1 = $tokenizer->create("1");
+        $tok2 = $tokenizer->create("2");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("-123");
         
-        $tokenizer->tokenize("-123");
+        $this->assertEquals($tokens, [$tok1, $tok2, new ArgumentToken("3")]);
     }
     
     #[Test]
     public function tokenize_input_of_satisfactory_id_then_argument()
     {
         $tokenizer = new ShortIdTokenizer;
-        $token = new ShortIdToken("1");
-        $tokenizer->append($token);
+        $token = $tokenizer->create("1");
         
         $tokens = $tokenizer->tokenize("-1arg");
         
@@ -118,12 +121,21 @@ class ShortIdTokenizerTest extends TestCase
     public function tokenize_input_of_satisfactory_id_then_equal_sign_then_argument()
     {
         $tokenizer = new ShortIdTokenizer;
-        $token = new ShortIdToken("1");
-        $tokenizer->append($token);
+        $token = $tokenizer->create("1");
         
         $tokens = $tokenizer->tokenize("-1=arg");
         
         $this->assertEquals([$token, new ArgumentToken("arg")], $tokens);
     }
     
+}
+
+function disable()
+{
+    VarDumper::setHandler(fn() => null);
+}
+
+function enable()
+{
+    VarDumper::setHandler(null);
 }

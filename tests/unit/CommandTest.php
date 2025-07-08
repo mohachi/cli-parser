@@ -4,8 +4,7 @@ use Mohachi\CliParser\Command;
 use Mohachi\CliParser\Exception\ParserException;
 use Mohachi\CliParser\Option;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,7 +30,7 @@ class CommandTest extends TestCase
     public function parse_empty_queue()
     {
         $parser = new Command("cmd");
-        $parser->id(new LiteralIdToken("cmd"));
+        $parser->id(new IdToken("cmd"));
         
         $this->expectException(UnderflowException::class);
         
@@ -43,8 +42,8 @@ class CommandTest extends TestCase
     {
         $queue = new TokenQueue;
         $parser = new Command("cmd");
-        $parser->id(new LiteralIdToken("cmd"));
-        $queue->enqueue(new LiteralIdToken("unexpected"));
+        $parser->id(new IdToken("cmd"));
+        $queue->enqueue(new IdToken("unexpected"));
         
         $this->expectException(ParserException::class);
         
@@ -54,10 +53,10 @@ class CommandTest extends TestCase
     #[Test]
     public function parse_unsatisfied_argument()
     {
-        $id = new LongIdToken("num");
+        $id = new IdToken("--num");
         $queue = new TokenQueue;
         $queue->enqueue($id);
-        $queue->enqueue(new LiteralIdToken("unexpected"));
+        $queue->enqueue(new IdToken("unexpected"));
         $parser = new Command("number");
         $parser->id($id);
         $parser->arg("arg", fn($v) => is_numeric($v));
@@ -70,8 +69,8 @@ class CommandTest extends TestCase
     #[Test]
     public function parse_satisfied_command()
     {
-        $id1 = new LiteralIdToken("cmd");
-        $id2 = new LongIdToken("opt");
+        $id1 = new IdToken("cmd");
+        $id2 = new IdToken("--opt");
         $arg = new ArgumentToken("value");
         $queue = new TokenQueue;
         $queue->enqueue($id1);

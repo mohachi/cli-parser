@@ -2,14 +2,17 @@
 
 namespace Mohachi\CliParser\IdTokenizer;
 
-use Mohachi\CliParser\Token\Id\IdTokenInterface;
+use Mohachi\CliParser\Token\AbstractToken;
+use Mohachi\CliParser\Token\IdToken;
 
 interface IdTokenizerInterface
 {
     
+    public function create(string $value): IdToken;
+    
     /**
-     * @return IdTokenInterface[]
+     * @return list<AbstractToken>
      */
-    public function tokenize(string $input): array;
+    public function tokenize(string $input): ?array;
     
 }

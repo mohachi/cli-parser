@@ -2,7 +2,7 @@
 
 namespace Mohachi\CliParser\Token;
 
-class ArgumentToken extends AbstractToken
+class IdToken extends AbstractToken
 {
 
 }

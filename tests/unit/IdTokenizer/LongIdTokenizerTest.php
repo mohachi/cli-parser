@@ -1,9 +1,7 @@
 <?php
 
-use Mohachi\CliParser\Exception\TokenizerException;
 use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
 use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -19,61 +17,60 @@ class LongIdTokenizerTest extends TestCase
     public function tokenize_empty_input()
     {
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append(new LongIdToken("id"));
+        $tokenizer->create("id");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("");
         
-        $tokenizer->tokenize("");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_literal_input()
     {
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append(new LongIdToken("id"));
+        $tokenizer->create("id");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("id");
         
-        $tokenizer->tokenize("id");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_against_empty_tokens()
     {
-        $this->expectException(TokenizerException::class);
+        $tokens = (new LongIdTokenizer)->tokenize("--id");
         
-        (new LongIdTokenizer)->tokenize("--id");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_unsatisfied_tokens()
     {
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append(new LongIdToken("expected-1"));
-        $tokenizer->append(new LongIdToken("expected-2"));
+        $tokenizer->create("expected-1");
+        $tokenizer->create("expected-2");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("--unexpected");
         
-        $tokenizer->tokenize("--unexpected");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_input_begins_with_satisfied_token_followed_by_extra_chars()
     {
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append(new LongIdToken("expected"));
+        $tokenizer->create("expected");
         
-        $this->expectException(TokenizerException::class);
+        $tokens = $tokenizer->tokenize("--expecteddd");
         
-        $tokenizer->tokenize("--expecteddd");
+        $this->assertEmpty($tokens);
     }
     
     #[Test]
     public function tokenize_satisfactory_input_of_id()
     {
-        $token = new LongIdToken("expected");
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append($token);
+        $token = $tokenizer->create("expected");
         
         $tokens = $tokenizer->tokenize("--expected");
         
@@ -83,9 +80,8 @@ class LongIdTokenizerTest extends TestCase
     #[Test]
     public function tokenize_satisfactory_input_of_id_and_empty_argument()
     {
-        $token = new LongIdToken("expected");
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append($token);
+        $token = $tokenizer->create("expected");
         
         $tokens = $tokenizer->tokenize("--expected=");
         
@@ -95,9 +91,8 @@ class LongIdTokenizerTest extends TestCase
     #[Test]
     public function tokenize_satisfactory_input_of_id_and_argument()
     {
-        $token = new LongIdToken("expected");
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append($token);
+        $token = $tokenizer->create("expected");
         
         $tokens = $tokenizer->tokenize("--expected=arg");
         
@@ -107,11 +102,9 @@ class LongIdTokenizerTest extends TestCase
     #[Test]
     public function tokenize_against_callabsable_tokens()
     {
-        $token_1 = new LongIdToken("option");
-        $token_2 = new LongIdToken("opt");
         $tokenizer = new LongIdTokenizer;
-        $tokenizer->append($token_2);
-        $tokenizer->append($token_1);
+        $token_1 = $tokenizer->create("option");
+        $token_2 = $tokenizer->create("opt");
         
         $tokens = $tokenizer->tokenize("--option");
         

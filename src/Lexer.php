@@ -56,26 +56,24 @@ class Lexer
             
             foreach( $this->tokenizers as $tokenizer )
             {
-                try
+                $tokens = $tokenizer->tokenize($arg);
+                
+                if( empty($tokens) )
                 {
-                    $tokens = $tokenizer->tokenize($arg);
-                    break;
+                    continue;
                 }
-                catch( TokenizerException $e )
+                
+                foreach( $tokens as $token )
                 {
-                    
+                    $queue->enqueue($token);
                 }
+                
+                break;
             }
             
             if( empty($tokens) )
             {
-                $tokens = [new ArgumentToken($arg)];
-            }
-            
-            
-            foreach( $tokens as $token )
-            {
-                $queue->enqueue($token);
+                $queue->enqueue(new ArgumentToken($arg));
             }
             
             $arg = next($args);

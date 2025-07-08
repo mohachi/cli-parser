@@ -46,8 +46,7 @@ foreach( $files as $file )
     
     foreach( $cmd["ids"] as $type => $id )
     {
-        $cmd["parser"]->id($id);
-        $tokenizers[$type]->append($id);
+        $cmd["parser"]->id($tokenizers[$type]->create($id));
     }
     
     foreach( $cmd["options"] as $name => $option )
@@ -56,8 +55,7 @@ foreach( $files as $file )
         
         foreach( $option["ids"] as $type => $id )
         {
-            $parser->id($id);
-            $tokenizers[$type]->append($id);
+            $parser->id($tokenizers[$type]->create($id));
         }
         
         if( isset($option["arguments"]) )

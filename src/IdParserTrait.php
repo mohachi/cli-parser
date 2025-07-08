@@ -3,18 +3,18 @@
 namespace Mohachi\CliParser;
 
 use Mohachi\CliParser\Exception\ParserException;
-use Mohachi\CliParser\Token\Id\IdTokenInterface;
+use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
 
 trait IdParserTrait
 {
     
     /**
-     * @var IdTokenInterface[] $tokens
+     * @var IdToken[] $tokens
      */
     private array $tokens = [];
     
-    public function id(IdTokenInterface $token)
+    public function id(IdToken $token)
     {
         $this->tokens[] = $token;
     }

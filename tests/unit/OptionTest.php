@@ -4,8 +4,7 @@ use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\Exception\ParserException;
 use Mohachi\CliParser\Option;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\Id\LiteralIdToken;
-use Mohachi\CliParser\Token\Id\LongIdToken;
+use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,7 +30,7 @@ class OptionTest extends TestCase
     public function parse_empty_stack()
     {
         $parser = new Option("opt");
-        $parser->id(new LongIdToken("opt"));
+        $parser->id(new IdToken("--opt"));
         
         $this->expectException(UnderflowException::class);
         
@@ -43,8 +42,8 @@ class OptionTest extends TestCase
     {
         $queue = new TokenQueue;
         $parser = new Option("opt");
-        $queue->enqueue(new LiteralIdToken("unexpected"));
-        $parser->id(new LiteralIdToken("expected"));
+        $queue->enqueue(new IdToken("unexpected"));
+        $parser->id(new IdToken("expected"));
         
         $this->expectException(ParserException::class);
         
@@ -54,7 +53,7 @@ class OptionTest extends TestCase
     #[Test]
     public function parse_unsatisfied_argument_parser()
     {
-        $id = new LongIdToken("num");
+        $id = new IdToken("--num");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new ArgumentToken("unexpected"));
@@ -70,7 +69,7 @@ class OptionTest extends TestCase
     #[Test]
     public function parse_satisfied_option()
     {
-        $id = new LongIdToken("num");
+        $id = new IdToken("--num");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue(new ArgumentToken("12"));
