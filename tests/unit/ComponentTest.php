@@ -10,131 +10,138 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+class ConcreteComponent extends Component
+{
+    public function testParseId(TokenQueue $queue)
+    {
+        return $this->parseId($queue);
+    }
+    
+    public function testParseArguments(TokenQueue $queue)
+    {
+        return $this->parseArguments($queue);
+    }
+}
+
 #[CoversClass(Component::class)]
 class ComponentTest extends TestCase
 {
     
-    /* METHOD: id */
+    private ConcreteComponent $component;
     
-    // ...
-    
-    /* METHOD: arg */
+    protected function setUp(): void
+    {
+        $this->component = new ConcreteComponent;
+    }
     
     #[Test]
-    public function append_empty_name()
+    public function arg_emptyName_throwsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new ConcreteComponent)->arg("");
+        $this->component->arg("");
     }
     
-    /* METHOD: parseId */
+    #[Test]
+    public function arg_existingName_throwsInvalidArgumentException()
+    {
+        $this->component->arg("first");
+        
+        $this->expectException(InvalidArgumentException::class);
+        
+        $this->component->arg("first");
+    }
     
     #[Test]
-    public function parse_id_against_empty_queue()
+    public function parseId_fromEmptyQueue_throwsUnderflowException()
     {
-        $parser = new ConcreteComponent;
-        $parser->id(new IdToken("--cmd"));
+        $this->component->id(new IdToken("--cmd"));
         
         $this->expectException(UnderflowException::class);
         
-        $parser->parseId(new TokenQueue);
+        $this->component->parseId(new TokenQueue);
     }
     
     #[Test]
-    public function parse_id_against_empty_id_list()
+    public function parseId_ofEmptyIdList_throwsParserException()
     {
         $queue = new TokenQueue;
         $queue->enqueue(new IdToken("cmd"));
-        $parser = new ConcreteComponent;
         
         $this->expectException(ParserException::class);
         
-        $parser->parseId($queue);
+        $this->component->parseId($queue);
     }
     
     #[Test]
-    public function parse_unsatisfied_id()
+    public function parseId_ofInvalidToken_throwsParserException()
     {
         $queue = new TokenQueue;
         $queue->enqueue(new IdToken("--unexpected"));
-        $parser = new ConcreteComponent;
-        $parser->id(new IdToken("--expected"));
+        $this->component->id(new IdToken("--expected"));
         
         $this->expectException(ParserException::class);
         
-        $parser->parseId($queue);
+        $this->component->parseId($queue);
     }
     
     #[Test]
-    public function parse_satisfied_id()
+    public function parseId_ofValidToken_returnsItsStringValue()
     {
         $queue = new TokenQueue;
-        $parser = new ConcreteComponent;
         $id = new IdToken("--expected");
         $queue->enqueue($id);
-        $parser->id($id);
+        $this->component->id($id);
         
-        $id = $parser->parseId($queue);
+        $id = $this->component->parseId($queue);
         
         $this->assertSame("--expected", $id);
     }
     
-    /* METHOD: parseArguments */
-    
     #[Test]
-    public function parse_args_against_empty_queue()
+    public function parseArguments_fromEmptyQueue_throwsUnderflowException()
     {
-        $parser = new ConcreteComponent;
-        $parser->arg("arg");
+        $this->component->arg("arg");
         
         $this->expectException(UnderflowException::class);
         
-        $parser->parseArguments(new TokenQueue);
+        $this->component->parseArguments(new TokenQueue);
     }
     
     #[Test]
-    public function parse_against_empty_argument_list()
+    public function parseArguments_ofEmptyArgumentList_returnsEmptyObject()
     {
         $queue = new TokenQueue;
         $queue->enqueue(new ArgumentToken("cmd"));
         
-        $arguments = (new ConcreteComponent)->parseArguments($queue);
+        $arguments = $this->component->parseArguments($queue);
         
-        $this->assertObjectNotHasProperty("cmd", $arguments);
+        $this->assertEmpty(get_object_vars($arguments));
     }
     
     #[Test]
-    public function parse_unsatisfied_argument()
+    public function parseArguments_ofInvalidToken_throwsParserException()
     {
         $queue = new TokenQueue;
         $queue->enqueue(new ArgumentToken("unexpected"));
-        $parser = new ConcreteComponent;
-        $parser->arg("num", fn($v) => is_numeric($v));
+        $this->component->arg("num", fn($v) => is_numeric($v));
         
         $this->expectException(ParserException::class);
         
-        $parser->parseArguments($queue);
+        $this->component->parseArguments($queue);
     }
     
     #[Test]
-    public function parse_satisfied_argument()
+    public function parseArguments_ofValidTokens_returnsObjectOfThereValues()
     {
         $queue = new TokenQueue;
-        $arg = new ArgumentToken("26");
-        $queue->enqueue($arg);
-        $parser = new ConcreteComponent;
-        $parser->arg("num", fn($v) => is_numeric($v));
+        $queue->enqueue(new ArgumentToken("26"));
+        $this->component->arg("num", fn($v) => is_numeric($v));
         
-        $arguments = $parser->parseArguments($queue);
+        $arguments = $this->component->parseArguments($queue);
         
         $this->assertObjectHasProperty("num", $arguments);
         $this->assertEquals($arguments->num, 26);
     }
-    
-}
-
-class ConcreteComponent extends Component
-{
     
 }

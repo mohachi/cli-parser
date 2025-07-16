@@ -9,135 +9,140 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+class ConcreteContext extends Context
+{
+    public function testParseOptions(TokenQueue $queue)
+    {
+        return $this->parseOptions($queue);
+    }
+}
+
 #[CoversClass(Context::class)]
 class ContextTest extends TestCase
 {
     
-    /* METHOD: append */
+    private ConcreteContext $context;
     
-    #[Test]
-    public function appent_negative_min()
+    protected function setUp(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        
-        (new ConcrecteContext)->opt("opt", -1);
+        $this->context = new ConcreteContext;
     }
     
     #[Test]
-    public function appent_max_equal_to_zero()
+    public function opt_negativeMin_throwsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new ConcrecteContext)->opt("opt", 0, 0);
+        $this->context->opt("opt", -1);
     }
     
     #[Test]
-    public function appent_positive_max_less_than_min()
+    public function opt_maxEqualToZero_throwsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
         
-        (new ConcrecteContext)->opt("opt", 5, 2);
+        $this->context->opt("opt", 0, 0);
     }
     
-    /* METHOD: parse */
+    #[Test]
+    public function opt_maxLessThanMin_throwsInvalidArgumentException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        
+        $this->context->opt("opt", 5, 2);
+    }
     
     #[Test]
-    public function parse_empty_queue()
+    public function parseOptions_ofEmptyQueue_returnsEmptyArray()
     {
-        $parser = new ConcrecteContext;
-        $parser->opt("opt")->id(new IdToken("--opt"));
+        $this->context->opt("opt")->id(new IdToken("--opt"));
         
-        $options = $parser->parseOptions(new TokenQueue);
+        $options = $this->context->parseOptions(new TokenQueue);
         
         $this->assertEmpty($options);
     }
     
     #[Test]
-    public function parse_against_empty_parsers()
+    public function parseOptions_ofEmptyParsers_returnsEmptyArrayAndNoTokenConsumption()
     {
         $id = new IdToken("cmd");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         
-        $options = (new ConcrecteContext())->parseOptions($queue);
+        $options = $this->context->parseOptions($queue);
         
         $this->assertEmpty($options);
-        $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
+        $this->assertSame($id, $queue->getHead());
     }
     
     #[Test]
-    public function parse_required_option_agains_empty_queue()
+    public function parseOptions_requiredOptionAgainstEmptyQueue_throwsUnderflowException()
     {
-        $parser = new ConcrecteContext;
-        $parser->opt("opt", 1)->id(new IdToken("--opt"));
+        $this->context->opt("opt", 1)->id(new IdToken("--opt"));
         
         $this->expectException(UnderflowException::class);
         
-        $parser->parseOptions(new TokenQueue);
+        $this->context->parseOptions(new TokenQueue);
     }
     
     #[Test]
-    public function parse_insufficient_option_min()
+    public function parseOptions_insufficientOptionMin_throwsParserException()
     {
         $queue = new TokenQueue;
-        $parser = new ConcrecteContext;
         $queue->enqueue(new IdToken("extra"));
-        $parser->opt("opt", 1)->id(new IdToken("--opt"));
+        $this->context->opt("opt", 1)->id(new IdToken("--opt"));
         
         $this->expectException(ParserException::class);
         
-        $parser->parseOptions($queue);
+        $this->context->parseOptions($queue);
     }
     
     #[Test]
-    public function parse_overwhelmed_option()
+    public function parseOptions_ofOverwhelmedOption_returnsArrayOfJustNeededAmountOfOption()
     {
         $id = new IdToken("--opt");
         $queue = new TokenQueue;
         $queue->enqueue($id);
         $queue->enqueue($id);
-        $parser = new ConcrecteContext;
-        $parser->opt("opt", 0, 1)->id($id);
+        $this->context->opt("opt", 0, 1)->id($id);
         
-        $options = $parser->parseOptions($queue);
+        $options = $this->context->parseOptions($queue);
         
         $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
         $this->assertEquals("opt", $options[0]->name);
     }
     
     #[Test]
-    public function parse_unsatisfied_option_id()
+    public function parseOptions_ofInvalidIdToken_returnsEmptyArray()
     {
         $id = new IdToken("unexpected");
         $queue = new TokenQueue;
         $queue->enqueue($id);
-        $parser = new ConcrecteContext;
-        $parser->opt("opt")->id(new IdToken("expected"));
+        $this->context->opt("opt")->id(new IdToken("expected"));
         
-        $options = $parser->parseOptions($queue);
+        $options = $this->context->parseOptions($queue);
         
         $this->assertEmpty($options);
         $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
     }
     
     #[Test]
-    public function parse_unsatisfied_option_arguments()
+    public function parseOptions_ofInvalidArgumentToken_throwsParserException()
     {
         $queue = new TokenQueue;
         $queue->enqueue(new IdToken("--opt"));
         $queue->enqueue(new IdToken("unexpected"));
-        $parser = new ConcrecteContext;
-        $parser->opt("opt", 1)
+        $this->context->opt("opt", 1)
             ->id(new IdToken("--expected"))
             ->arg("arg", fn($v) => $v == "expected");
         
         $this->expectException(ParserException::class);
         
-        $parser->parseOptions($queue);
+        $this->context->parseOptions($queue);
     }
     
     #[Test]
-    public function parse_satisfied_option()
+    public function parseOptions_ofValidTokens_returnsArrayOfOptions()
     {
         $id1 = new IdToken("--num");
         $arg1 = new ArgumentToken("12");
@@ -147,24 +152,18 @@ class ContextTest extends TestCase
         $queue->enqueue($id1);
         $queue->enqueue($arg1);
         $queue->enqueue($id2);
-        $parser = new ConcrecteContext;
-        $parser->opt("num")
+        $this->context->opt("num")
             ->id($id1)
             ->arg("value", fn(string $v) => is_numeric($v));
-        $parser->opt("opt")
+        $this->context->opt("opt")
             ->id($id2);
         
-        $options = $parser->parseOptions($queue);
+        $options = $this->context->parseOptions($queue);
         
         $this->assertCount(3, $options);
         $this->assertEquals("opt", $options[0]->name);
         $this->assertEquals("num", $options[1]->name);
         $this->assertEquals("opt", $options[2]->name);
     }
-    
-}
-
-class ConcrecteContext extends Context
-{
     
 }

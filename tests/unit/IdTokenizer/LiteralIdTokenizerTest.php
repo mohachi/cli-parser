@@ -1,5 +1,6 @@
 <?php
 
+use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -9,45 +10,69 @@ use PHPUnit\Framework\TestCase;
 class LiteralIdTokenizerTest extends TestCase
 {
     
-    /* METHOD: tokenize */
+    private LiteralIdTokenizer $tokenizer;
     
-    #[Test]
-    public function tokenize_empty_input()
+    protected function setUp(): void
     {
-        $tokenizer = new LiteralIdTokenizer;
-        $tokenizer->create("id");
-        
-        $tokens = $tokenizer->tokenize("");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer = new LiteralIdTokenizer;
     }
     
     #[Test]
-    public function tokenize_against_empty_tokens()
+    public function create_usingEmptyValue_throwsInvalidArgumentException()
     {
-        $tokens = (new LiteralIdTokenizer)->tokenize("unexpected");
+        $this->expectException(InvalidArgumentException::class);
         
-        $this->assertEmpty($tokens);
+        $this->tokenizer->create("");
     }
     
     #[Test]
-    public function tokenize_unsatisfactory_input()
+    public function create_usingNonAlphabeticallyPrefixedValue_throwsInvalidArgumentException()
     {
-        $tokenizer = new LiteralIdTokenizer;
-        $tokenizer->create("expected");
+        $this->expectException(InvalidArgumentException::class);
         
-        $tokens = $tokenizer->tokenize("unexpected");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer->create("-id");
     }
     
     #[Test]
-    public function tokenize_satisfactory_input()
+    public function create_usingAlreadyCreatedId_returnsTheSameToken()
     {
-        $tokenizer = new LiteralIdTokenizer;
-        $token = $tokenizer->create("expected");
+        $token = $this->tokenizer->create("id");
         
-        $tokens = $tokenizer->tokenize("expected");
+        $this->assertSame($token, $this->tokenizer->create("id"));
+    }
+    
+    #[Test]
+    public function tokenize_emptyInput_returnsNull()
+    {
+        $this->tokenizer->create("id");
+        
+        $this->assertNull($this->tokenizer->tokenize(""));
+    }
+    
+    #[Test]
+    public function tokenize_withNoTokens_returnsNull()
+    {
+        $tokens = $this->tokenizer->tokenize("id");
+        
+        $this->assertNull($tokens);
+    }
+    
+    #[Test]
+    public function tokenize_unrecognizedInput_returnsNull()
+    {
+        $this->tokenizer->create("expected");
+        
+        $tokens = $this->tokenizer->tokenize("unexpected");
+        
+        $this->assertNull($tokens);
+    }
+    
+    #[Test]
+    public function tokenize_recognizedInput_returnsArrayContainsMatchedIdToken()
+    {
+        $token = $this->tokenizer->create("expected");
+        
+        $tokens = $this->tokenizer->tokenize("expected");
         
         $this->assertSame([$token], $tokens);
     }

@@ -1,5 +1,6 @@
 <?php
 
+use Mohachi\CliParser\Exception\InvalidArgumentException;
 use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
 use Mohachi\CliParser\Token\ArgumentToken;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -10,104 +11,142 @@ use PHPUnit\Framework\TestCase;
 class LongIdTokenizerTest extends TestCase
 {
     
-    /* METHOD: tokenize */
+    private LongIdTokenizer $tokenizer;
     
-    #[Test]
-    public function tokenize_empty_input()
+    protected function setUp(): void
     {
-        $tokenizer = new LongIdTokenizer;
-        $tokenizer->create("id");
-        
-        $tokens = $tokenizer->tokenize("");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer = new LongIdTokenizer;
     }
     
     #[Test]
-    public function tokenize_literal_input()
+    public function create_usingEmptyValue_throwsInvalidArgumentException()
     {
-        $tokenizer = new LongIdTokenizer;
-        $tokenizer->create("id");
+        $this->expectException(InvalidArgumentException::class);
         
-        $tokens = $tokenizer->tokenize("id");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer->create("");
     }
     
     #[Test]
-    public function tokenize_against_empty_tokens()
+    public function create_usingValueEqualsToDash_throwsInvalidArgumentException()
     {
-        $tokens = (new LongIdTokenizer)->tokenize("--id");
+        $this->expectException(InvalidArgumentException::class);
         
-        $this->assertEmpty($tokens);
+        $this->tokenizer->create("-");
     }
     
     #[Test]
-    public function tokenize_unsatisfied_tokens()
+    public function create_usingValueEqualsToDoubleDash_throwsInvalidArgumentException()
     {
-        $tokenizer = new LongIdTokenizer;
-        $tokenizer->create("expected-1");
-        $tokenizer->create("expected-2");
+        $this->expectException(InvalidArgumentException::class);
         
-        $tokens = $tokenizer->tokenize("--unexpected");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer->create("--");
     }
     
     #[Test]
-    public function tokenize_input_begins_with_satisfied_token_followed_by_extra_chars()
+    public function create_usingNonPrefixedValue_returnsIdTokenWithPrefixedValue()
     {
-        $tokenizer = new LongIdTokenizer;
-        $tokenizer->create("expected");
+        $token = $this->tokenizer->create("id");
         
-        $tokens = $tokenizer->tokenize("--expecteddd");
-        
-        $this->assertEmpty($tokens);
+        $this->assertEquals("--id", (string) $token);
     }
     
     #[Test]
-    public function tokenize_satisfactory_input_of_id()
+    public function create_usingAlreadyCreatedId_returnsTheSameToken()
     {
-        $tokenizer = new LongIdTokenizer;
-        $token = $tokenizer->create("expected");
+        $token = $this->tokenizer->create("id");
         
-        $tokens = $tokenizer->tokenize("--expected");
-        
-        $this->assertEquals([$token], $tokens);
+        $this->assertSame($token, $this->tokenizer->create("id"));
     }
     
     #[Test]
-    public function tokenize_satisfactory_input_of_id_and_empty_argument()
+    public function tokenize_emptyInput_returnsNull()
     {
-        $tokenizer = new LongIdTokenizer;
-        $token = $tokenizer->create("expected");
+        $this->tokenizer->create("id");
         
-        $tokens = $tokenizer->tokenize("--expected=");
-        
-        $this->assertEquals([$token, new ArgumentToken("")], $tokens);
+        $this->assertNull($this->tokenizer->tokenize(""));
     }
     
     #[Test]
-    public function tokenize_satisfactory_input_of_id_and_argument()
+    public function tokenize_nonPrefixedInput_returnsNull()
     {
-        $tokenizer = new LongIdTokenizer;
-        $token = $tokenizer->create("expected");
+        $this->tokenizer->create("id");
         
-        $tokens = $tokenizer->tokenize("--expected=arg");
         
-        $this->assertEquals([$token, new ArgumentToken("arg")], $tokens);
+        $this->assertNull($this->tokenizer->tokenize("id"));
     }
     
     #[Test]
-    public function tokenize_against_callabsable_tokens()
+    public function tokenize_withNoTokens_returnsNull()
     {
-        $tokenizer = new LongIdTokenizer;
-        $token_1 = $tokenizer->create("option");
-        $token_2 = $tokenizer->create("opt");
+        $tokens = $this->tokenizer->tokenize("--id");
         
-        $tokens = $tokenizer->tokenize("--option");
+        $this->assertNull($tokens);
+    }
+    
+    #[Test]
+    public function tokenize_unrecognizedInput_returnsNull()
+    {
+        $this->tokenizer->create("expected-1");
+        $this->tokenizer->create("expected-2");
         
-        $this->assertEquals([$token_1], $tokens);
+        $tokens = $this->tokenizer->tokenize("--unexpected");
+        
+        $this->assertNull($tokens);
+    }
+    
+    #[Test]
+    public function tokenize_inputStartsWithMatchingToken_returnNull()
+    {
+        $this->tokenizer->create("expected");
+        
+        $tokens = $this->tokenizer->tokenize("--expecteddd");
+        
+        $this->assertNull($tokens);
+    }
+    
+    #[Test]
+    public function tokenize_recognizedInput_returnsArrayContainsMatchedIdToken()
+    {
+        $token = $this->tokenizer->create("expected");
+        
+        $tokens = $this->tokenizer->tokenize("--expected");
+        
+        $this->assertSame([$token], $tokens);
+    }
+    
+    #[Test]
+    public function tokenize_recognizedInputWithEmptyArgument_returnsArrayContainsMatchedIdTokenAndEmptyArgumentToken()
+    {
+        $token = $this->tokenizer->create("expected");
+        
+        $tokens = $this->tokenizer->tokenize("--expected=");
+        
+        $this->assertCount(2, $tokens);
+        $this->assertSame($token, $tokens[0]);
+        $this->assertEquals(new ArgumentToken(""), $tokens[1]);
+    }
+    
+    #[Test]
+    public function tokenize_recognizedInputWithArgument_returnsArrayContainsMatchedIdTokenAndArgumentToken()
+    {
+        $token = $this->tokenizer->create("expected");
+        
+        $tokens = $this->tokenizer->tokenize("--expected=arg");
+        
+        $this->assertCount(2, $tokens);
+        $this->assertSame($token, $tokens[0]);
+        $this->assertEquals(new ArgumentToken("arg"), $tokens[1]);
+    }
+    
+    #[Test]
+    public function tokenize_recognizedInputAgainstCollapsibleMatches_returnsArrayContainsExactlyMatchedIdToken()
+    {
+        $this->tokenizer->create("option");
+        $expected = $this->tokenizer->create("opt");
+        
+        $tokens = $this->tokenizer->tokenize("--opt");
+        
+        $this->assertSame([$expected], $tokens);
     }
     
 }

@@ -10,114 +10,147 @@ use PHPUnit\Framework\TestCase;
 class ShortIdTokenizerTest extends TestCase
 {
     
-    /* METHOD: tokenize */
+    private ShortIdTokenizer $tokenizer;
     
-    #[Test]
-    public function tokenize_empty_input()
+    protected function setUp(): void
     {
-        $tokenizer = new ShortIdTokenizer;
-        $tokenizer->create("i");
-        
-        $tokens = $tokenizer->tokenize("");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer = new ShortIdTokenizer;
     }
     
     #[Test]
-    public function tokenize_literal_input()
+    public function create_usingEmptyValue_throwsInvalidArgumentException()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $tokenizer->create("l");
-        $tokenizer->create("i");
-        $tokenizer->create("t");
-        $tokenizer->create("e");
-        $tokenizer->create("r");
-        $tokenizer->create("a");
-        $tokenizer->create("l");
+        $this->expectException(InvalidArgumentException::class);
         
-        $tokens = $tokenizer->tokenize("literal");
-        
-        $this->assertEmpty($tokens);
+        $this->tokenizer->create("");
     }
     
     #[Test]
-    public function tokenize_long_input()
+    public function create_usingValueEqualsToDash_throwsInvalidArgumentException()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $tokenizer->create("l");
-        $tokenizer->create("o");
-        $tokenizer->create("n");
-        $tokenizer->create("g");
+        $this->expectException(InvalidArgumentException::class);
         
-        $tokens = $tokenizer->tokenize("--long");
+        $this->tokenizer->create("-");
+    }
+    
+    #[Test]
+    public function create_usingValueEqualsToDoubleDash_throwsInvalidArgumentException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        
+        $this->tokenizer->create("--");
+    }
+    
+    #[Test]
+    public function create_usingValueEqualsDashThenEqual_throwsInvalidArgumentException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        
+        $this->tokenizer->create("-=");
+    }
+    
+    #[Test]
+    public function create_usingValueOfMoreThanOneChar__throwsInvalidArgumentException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        
+        $this->tokenizer->create("-id");
+    }
+    
+    #[Test]
+    public function create_usingNonPrefixedValue_returnsIdTokenWithPrefixedValue()
+    {
+        $token = $this->tokenizer->create("i");
+        
+        $this->assertEquals("-i", (string) $token);
+    }
+    
+    #[Test]
+    public function create_usingAlreadyCreatedId_returnsSameToken()
+    {
+        $token = $this->tokenizer->create("i");
+        
+        $this->assertSame($token, $this->tokenizer->create("i"));
+    }
+    
+    #[Test]
+    public function tokenize_withNoTokens_returnsNull()
+    {
+        $tokens = $this->tokenizer->tokenize("-i");
         
         $this->assertNull($tokens);
     }
     
     #[Test]
-    public function tokenize_against_empty_tokens()
+    public function tokenize_recongnizedInvalidInputs_returnsNull()
     {
-        $tokens = (new ShortIdTokenizer)->tokenize("-i");
+        $this->tokenizer->create("i");
         
-        $this->assertEmpty($tokens);
+        $this->assertNull($this->tokenizer->tokenize(""));
+        $this->assertNull($this->tokenizer->tokenize("-"));
+        $this->assertNull($this->tokenizer->tokenize("--"));
+        $this->assertNull($this->tokenizer->tokenize("-="));
     }
     
     #[Test]
-    public function tokenize_unsatisfied_tokens()
+    public function tokenize_unrecognizedInput_returnsNull()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $tokenizer->create("1");
-        $tokenizer->create("2");
+        $this->tokenizer->create("i");
+        $this->tokenizer->create("d");
         
-        $tokens = $tokenizer->tokenize("-0");
-        
-        $this->assertEmpty($tokens);
+        $this->assertNull($this->tokenizer->tokenize("-h"));
     }
     
     #[Test]
-    public function tokenize_input_that_satisfies_multiple_tokens()
+    public function tokenize_inputOfMultipleRecognizableTokens_retunsIdTokensArray()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $token_1 = $tokenizer->create("1");
-        $token_2 = $tokenizer->create("2");
+        $i = $this->tokenizer->create("i");
+        $d = $this->tokenizer->create("d");
         
-        $tokens = $tokenizer->tokenize("-2121");
+        $tokens = $this->tokenizer->tokenize("-didi");
         
-        $this->assertEquals([$token_2, $token_1, $token_2, $token_1], $tokens);
+        $this->assertSame([$d, $i, $d, $i], $tokens);
     }
     
     #[Test]
-    public function tokenize_input_that_contains_unsatisfactory_ids()
+    public function tokenize_inputAppendedWithNonRecognizableToken_returnsArrayOfIdTokensThenArgumentToken()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $tok1 = $tokenizer->create("1");
-        $tok2 = $tokenizer->create("2");
+        $i = $this->tokenizer->create("i");
+        $d = $this->tokenizer->create("d");
         
-        $tokens = $tokenizer->tokenize("-123");
+        $tokens = $this->tokenizer->tokenize("-ida");
         
-        $this->assertEquals($tokens, [$tok1, $tok2, new ArgumentToken("3")]);
+        $this->assertCount(3, $tokens);
+        $this->assertSame($i, $tokens[0]);
+        $this->assertSame($d, $tokens[1]);
+        $this->assertEquals(new ArgumentToken("a"), $tokens[2]);
     }
     
     #[Test]
-    public function tokenize_input_of_satisfactory_id_then_argument()
+    public function tokenize_inputSuffixedWithExplicitArgument_returnsArrayOfIdTokensThenArgumentToken()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $token = $tokenizer->create("1");
+        $i = $this->tokenizer->create("i");
+        $d = $this->tokenizer->create("d");
         
-        $tokens = $tokenizer->tokenize("-1arg");
+        $tokens = $this->tokenizer->tokenize("-id=arg");
         
-        $this->assertEquals([$token, new ArgumentToken("arg")], $tokens);
+        $this->assertCount(3, $tokens);
+        $this->assertSame($i, $tokens[0]);
+        $this->assertSame($d, $tokens[1]);
+        $this->assertEquals(new ArgumentToken("arg"), $tokens[2]);
     }
     
     #[Test]
-    public function tokenize_input_of_satisfactory_id_then_equal_sign_then_argument()
+    public function tokenize_inputContainsUnrecognizableToken_returnsArrayOfRecognizedToeknsThenArgumentToken()
     {
-        $tokenizer = new ShortIdTokenizer;
-        $token = $tokenizer->create("1");
+        $i = $this->tokenizer->create("i");
+        $this->tokenizer->create("d");
         
-        $tokens = $tokenizer->tokenize("-1=arg");
+        $tokens = $this->tokenizer->tokenize("-iad");
         
-        $this->assertEquals([$token, new ArgumentToken("arg")], $tokens);
+        $this->assertCount(2, $tokens);
+        $this->assertSame($i, $tokens[0]);
+        $this->assertEquals(new ArgumentToken("ad"), $tokens[1]);
     }
     
 }
