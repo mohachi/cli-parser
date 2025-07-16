@@ -41,28 +41,25 @@ class ShortIdTokenizer implements IdTokenizerInterface
     
     public function tokenize(string $input): ?array
     {
-        if( in_array($input, ["", "-", "-="]) || ! str_starts_with($input, "-") )
+        if( empty($this->tokens) )
         {
             return null;
         }
         
-        $pos = -1;
-        $tokens = [];
-        $input = substr($input, 1);
-        
-        do
+        if( in_array($input, ["", "-", "--", "-="]) || ! str_starts_with($input, "-") )
         {
-            $pos++;
-            $tokenized = false;
-            $id = substr($input, $pos, 1);
-            
-            if( isset($this->tokens[$id]) )
-            {
-                $tokenized = true;
-                $tokens[] = $this->tokens[$id];
-            }
+            return null;
         }
-        while( $tokenized && "=" != $id );
+        
+        $pos = 1;
+        $tokens = [];
+        $id = substr($input, $pos, 1);
+        
+        while( isset($this->tokens[$id]) )
+        {
+            $tokens[] = $this->tokens[$id];
+            $id = substr($input, ++$pos, 1);
+        }
         
         if( empty($tokens) )
         {
