@@ -15,7 +15,7 @@ class LiteralIdTokenizer implements IdTokenizerInterface
     
     public function create(string $value): IdToken
     {
-        if( "" == $value || "-" == $value[0] )
+        if( "" == $value || ! ctype_alpha($value[0]) )
         {
             throw new InvalidArgumentException();
         }
@@ -30,12 +30,12 @@ class LiteralIdTokenizer implements IdTokenizerInterface
     
     public function tokenize(string $input): ?array
     {
-        if( ! isset($this->tokens[$input]) )
+        if( isset($this->tokens[$input]) )
         {
-            return null;
+            return [$this->tokens[$input]];
         }
         
-        return [$this->tokens[$input]];
+        return null;
     }
     
 }
