@@ -34,13 +34,13 @@ abstract class Context extends Component
         $this->options[$name] = [
             "min" => $min,
             "max" => $max,
-            "option" => new Option($name),
+            "option" => new Option($name, $this->lexer),
         ];
         
         return $this->options[$name]["option"];
     }
     
-    public function parseOptions(TokenQueue $queue): array
+    protected function parseOptions(): array
     {
         $options = [];
         $rest = $this->options;
@@ -56,7 +56,7 @@ abstract class Context extends Component
             {
                 try
                 {
-                    $options[] = $option->parse($queue);
+                    $options[] = $option->parse();
                     $min--;
                     $max--;
                     $parsed = true;

@@ -1,6 +1,8 @@
 <?php
 
 use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\Lexer;
 use Mohachi\CliParser\Option;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
@@ -18,23 +20,23 @@ class OptionTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         
-        new Option("");
+        new Option("", new Lexer);
     }
     
     #[Test]
     public function parse_validTokens_returnsOptionStdClassObject()
     {
-        $id = new IdToken("--num");
-        $queue = new TokenQueue;
-        $queue->enqueue($id);
-        $queue->enqueue(new ArgumentToken("12"));
-        $parser = new Option("number");
-        $parser->id($id);
-        $parser->arg("arg", fn(string $v) => is_numeric($v));
+        $lexer = new Lexer;
+        $lexer->register(new LongIdTokenizer, "long");
+        $parser = new Option("number", $lexer);
+        $parser->id("long", "--num")
+            ->arg("arg", fn(string $v) => is_numeric($v));
+        $argv = ["--num", "12"];
+        $lexer->consume($argv);
         
-        $option = $parser->parse($queue);
+        $option = $parser->parse();
         
-        $this->assertEquals($id, $option->id);
+        $this->assertEquals("--num", $option->id);
         $this->assertEquals((object) ["arg" => "12"], $option->arguments);
     }
     

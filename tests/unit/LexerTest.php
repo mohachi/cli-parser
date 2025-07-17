@@ -1,94 +1,247 @@
 <?php
 
-use Mohachi\CliParser\Exception\InvalidArgumentException;
-use Mohachi\CliParser\IdTokenizer\IdTokenizerInterface;
-use Mohachi\CliParser\Lexer;
-use Mohachi\CliParser\Token\ArgumentToken;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
+namespace Mohachi\CliParser\Tests;
+
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Mohachi\CliParser\Lexer;
+use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CliParser\Token\ArgumentToken;
+use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\LogicException;
+use Mohachi\CliParser\Exception\OutOfBoundsException;
+use Mohachi\CliParser\Exception\UnderflowException;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\ShortIdTokenizer;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Lexer::class)]
 class LexerTest extends TestCase
 {
     
-    public function get_unsatisfiable_tokenizer_extension(): IdTokenizerInterface
+    private Lexer $lexer;
+
+    protected function setUp(): void
     {
-        $tokenizer = $this->createStub(IdTokenizerInterface::class);
-        $tokenizer->method("tokenize");
-        return $tokenizer;
+        $this->lexer = new Lexer();
+    }
+
+    #[Test]
+    public function get_unregisteredTokenizer_throwsOutOfBoundsException(): void
+    {
+        $this->expectException(OutOfBoundsException::class);
+        
+        $this->lexer->get(LiteralIdTokenizer::class);
+    }
+
+    #[Test]
+    public function register_sameTokenizerNameTwice_throwsLogicException(): void
+    {
+        $this->lexer->register(new LiteralIdTokenizer());
+        
+        $this->expectException(LogicException::class);
+        
+        $this->lexer->register(new LiteralIdTokenizer());
+    }
+
+    #[Test]
+    public function get_registeredTokenizer_returnsIt(): void
+    {
+        $tokenizer = new LiteralIdTokenizer;
+        $this->lexer->register($tokenizer);
+        
+        $retrieved = $this->lexer->get(LiteralIdTokenizer::class);
+        
+        $this->assertSame($tokenizer, $retrieved);
     }
     
-    /* METHOD: tokenize */
+    #[Test]
+    public function rewind_beforeConsume_throwsUnderflowException()
+    {
+        $this->lexer->register(new LiteralIdTokenizer);
+        
+        $this->expectException(UnderflowException::class);
+        
+        $this->lexer->rewind();
+    }
     
     #[Test]
-    public function tokenize_empty_args()
+    public function valid_beforeConsume_returnsFalse()
     {
-        $args = [];
-        $lexer = new Lexer;
-        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
+        $this->assertFalse($this->lexer->valid());
+    }
+    
+    #[Test]
+    public function current_beforeConsume_throwsUnderflowException()
+    {
+        $this->expectException(UnderflowException::class);
+        
+        $this->lexer->current();
+    }
+    
+    #[Test]
+    public function key_beforeConsume_throwsUnderflowException()
+    {
+        $this->expectException(UnderflowException::class);
+        
+        $this->lexer->key();
+    }
+    
+    #[Test]
+    public function next_beforeConsume_throwsUnderflowException()
+    {
+        $this->expectException(UnderflowException::class);
+        
+        $this->lexer->next();
+    }
+    
+    #[Test]
+    public function consume_emptyArgvArray_throwsInvalidArgumentException(): void
+    {
+        $argv = [];
         
         $this->expectException(InvalidArgumentException::class);
         
-        $lexer->lex($args);
+        $this->lexer->consume($argv);
     }
-    
+
     #[Test]
-    public function tokenize_non_list_args()
+    public function consume_aNonListArgvArray_throwsInvalidArgumentException(): void
     {
-        $args = [5 => "cmd"];
-        $lexer = new Lexer;
-        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
+        $argv = [1 => "test", 5 => "arg"];
         
         $this->expectException(InvalidArgumentException::class);
         
-        $lexer->lex($args);
+        $this->lexer->consume($argv);
     }
-    
+
     #[Test]
-    public function tokenize_non_string_args()
+    public function consume_argvArrayThatHasNonStringValue_throwsInvalidArgumentException(): void
     {
-        $args = [[]];
-        $lexer = new Lexer;
-        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
+        $argv = [[]];
         
         $this->expectException(InvalidArgumentException::class);
         
-        $lexer->lex($args);
+        $this->lexer->consume($argv);
+    }
+
+    #[Test]
+    public function consume_differentConsumeCalls_resetsBuffer(): void
+    {
+        $argv1 = ["first"];
+        $argv2 = ["second"];
+        $this->lexer->consume($argv1);
+        $this->lexer->current();
+        $this->lexer->next();
+        $this->lexer->consume($argv2);
+        
+        $token = $this->lexer->current();
+        
+        $this->assertEquals(new ArgumentToken("second"), $token);
+    }
+
+    #[Test]
+    public function current_noMoreTokens_throwsUnderflowException(): void
+    {
+        $argv = ["first"];
+        $this->lexer->consume($argv);
+        $this->lexer->next();
+        
+        $this->expectException(UnderflowException::class);
+        $this->expectExceptionMessage("No more tokens available");
+        
+        $this->lexer->current();
     }
     
     #[Test]
-    public function tokenize_against_empty_tokenizer_extensions()
+    public function key_noMoreTokens_throwsUnderflowException(): void
     {
-        $lexer = new Lexer;
-        $args = ["literal", "--long", "-s"];
+        $argv = ["first"];
+        $this->lexer->consume($argv);
+        $this->lexer->next();
         
-        $queue = $lexer->lex($args);
+        $this->expectException(UnderflowException::class);
+        $this->expectExceptionMessage("No more tokens available");
         
-        foreach( $args as $arg )
+        $this->lexer->key();
+    }
+
+    #[Test]
+    public function next_noMoreTokens_throwsUnderflowException(): void
+    {
+        $argv = ["first"];
+        $this->lexer->consume($argv);
+        $this->lexer->next();
+        
+        $this->expectException(UnderflowException::class);
+        $this->expectExceptionMessage("No more tokens available");
+        
+        $this->lexer->next();
+    }
+
+    #[Test]
+    public function iterateThrough_NonIdTokenizedTokens_iteratesThroughArgumentTokens()
+    {
+        $argv = ["first", "second", "third"];
+        $tokenizer = new LiteralIdTokenizer;
+        $this->lexer->register($tokenizer);
+        $tokenizer->create("unexpected");
+        $this->lexer->consume($argv);
+        
+        foreach( $argv as $i => $arg )
         {
-            $this->assertEquals(new ArgumentToken($arg), $queue->dequeue());
+            $this->assertTrue($this->lexer->valid());
+            $this->assertEquals($i, $this->lexer->key());
+            $this->assertEquals(new ArgumentToken($arg), $this->lexer->current());
+            $this->lexer->next();
         }
         
-        $this->assertTrue($queue->isEmpty());
+        $this->assertFalse($this->lexer->valid());
+        
+        $this->lexer->rewind();
+        $this->assertTrue($this->lexer->valid());
+        $this->assertEquals(0, $this->lexer->key());
+        $this->assertEquals(new ArgumentToken("first"), $this->lexer->current());
     }
     
     #[Test]
-    public function tokenize_unsatisfiable_args()
+    public function iterateThrough_idTokenizedTokens_buffersAndIteratesThroughThemFirst()
     {
-        $lexer = new Lexer;
-        $args = ["first", "second"];
-        $args = ["literal", "--long", "-s"];
-        $lexer->register($this->get_unsatisfiable_tokenizer_extension());
+        $tokens = [];
+        $argv = ["cmd", "--long=arg", "-ab"];
+        $tokenizers = [
+            "long" => new LongIdTokenizer,
+            "short" => new ShortIdTokenizer,
+            "literal" => new LiteralIdTokenizer,
+        ];
         
-        $queue = $lexer->lex($args);
-        
-        foreach( $args as $arg )
+        foreach( $tokenizers as $tokenizer )
         {
-            $this->assertEquals(new ArgumentToken($arg), $queue->dequeue());
+            $this->lexer->register($tokenizer);
         }
         
-        $this->assertTrue($queue->isEmpty());
+        $tokens[] = $tokenizers["literal"]->create("cmd");
+        $tokens[] = $tokenizers["long"]->create("long");
+        $tokens[] = new ArgumentToken("arg");
+        $tokens[] = $tokenizers["short"]->create("a");
+        $tokens[] = $tokenizers["short"]->create("b");
+        $this->lexer->consume($argv);
+        
+        
+        foreach( $tokens as $i => $expected )
+        {
+            $this->assertTrue($this->lexer->valid());
+            $this->assertEquals($i, $this->lexer->key());
+            $this->assertEquals($expected, $this->lexer->current());
+            $this->lexer->next();
+        }
+        
+        $this->assertFalse($this->lexer->valid());
+        
+        $this->lexer->rewind();
+        $this->assertTrue($this->lexer->valid());
+        $this->assertEquals(0, $this->lexer->key());
+        $this->assertEquals($tokens[0], $this->lexer->current());
     }
-    
+
 }

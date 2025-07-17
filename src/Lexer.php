@@ -2,85 +2,208 @@
 
 namespace Mohachi\CliParser;
 
+use Iterator;
 use Mohachi\CliParser\Exception\InvalidArgumentException;
+use Mohachi\CliParser\Exception\LogicException;
+use Mohachi\CliParser\Exception\OutOfBoundsException;
+use Mohachi\CliParser\Exception\UnderflowException;
 use Mohachi\CliParser\IdTokenizer\IdTokenizerInterface;
+use Mohachi\CliParser\Token\AbstractToken;
 use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\TokenQueue;
 
-class Lexer
+class Lexer implements Iterator
 {
     
+    private int $pointer = 0;
+    
     /**
-     * @var array<string,IdTokenizerInterface> $tokenizers
+     * @var list<string> $argv
+     */
+    private array $argv = [];
+    
+    /**
+     * @var list<AbstractToken> $buffer
+     */
+    private array $buffer = [];
+    
+    /**
+     * @var IdTokenizerInterface[] $tokenizers
      */
     private array $tokenizers = [];
     
-    public function register(IdTokenizerInterface $tokenizer)
+    /**
+     * @var array<string,IdTokenizerInterface> $index
+     */
+    private array $index = [];
+    
+    /**
+     * Get an id tokenizer instnace by its class name.
+     * 
+     * @throws OutOfBoundsException if `name` is available.
+     */
+    function get(string $name): IdTokenizerInterface
     {
-        $type = get_class($tokenizer);
-        
-        if( isset($this->tokenizers[$type]) )
+        if( ! isset($this->index[$name]) )
         {
-            throw new InvalidArgumentException();
+            throw new OutOfBoundsException("Unavailable tokenizer '$name'");
         }
-        
-        $this->tokenizers[$type] = $tokenizer;
+
+        return $this->index[$name];
     }
     
-    function get(string $type): IdTokenizerInterface
+    /**
+     * Add an id tokenizer instance.
+     * 
+     * @throws LogicException if a `tokenizer` of the same name has already been registered.
+     */
+    public function register(IdTokenizerInterface $tokenizer, string ...$names)
     {
-        if( ! isset($this->tokenizers[$type]) )
+        array_unshift($names, get_class($tokenizer));
+        
+        foreach( $names as $name )
         {
-            throw new InvalidArgumentException();
+            if( isset($this->index[$name]) )
+            {
+                throw new LogicException("Tokenizer already registered");
+            }
+            
+            $this->index[$name] = $tokenizer;
         }
         
-        return $this->tokenizers[$type];
+        $this->tokenizers[] = $tokenizer;
     }
     
-    public function lex(array &$args): TokenQueue
+    /**
+     * Set the command line arguments to lex
+     * 
+     * @throws InvalidArgumentException if `argv` is empty.
+     * @throws InvalidArgumentException if `argv` is not a list.
+     * @throws InvalidArgumentException if `argv` has a non string value.
+     */
+    public function consume(array &$argv)
     {
-        switch( true )
+        if( empty($argv) )
         {
-            case empty($args):
-            case ! array_is_list($args):
-            case ! array_all($args, fn($v) => is_string($v)):
-                throw new InvalidArgumentException();
+            throw new InvalidArgumentException("Empty argv");
         }
         
-        reset($args);
-        $arg = current($args);
-        $queue = new TokenQueue;
-        
-        while( false !== $arg )
+        for( $i = 0; $i < count($argv); $i++ )
         {
-            $tokens = [];
-            
-            foreach( $this->tokenizers as $tokenizer )
+            if( ! isset($argv[$i]) )
             {
-                $tokens = $tokenizer->tokenize($arg);
-                
-                if( empty($tokens) )
-                {
-                    continue;
-                }
-                
-                foreach( $tokens as $token )
-                {
-                    $queue->enqueue($token);
-                }
-                
-                break;
+                throw new InvalidArgumentException("`argv` is not a list");
             }
             
-            if( empty($tokens) )
+            if( ! is_string($argv[$i]) )
             {
-                $queue->enqueue(new ArgumentToken($arg));
+                throw new InvalidArgumentException("Non string value at argv[$i]");
             }
-            
-            $arg = next($args);
         }
         
-        return $queue;
+        $this->argv = &$argv;
+        $this->rewind();
+    }
+    
+    /**
+     * Reset `argv`'s internal pointer then lex.
+     */
+    public function rewind(): void
+    {
+        reset($this->argv);
+        $this->pointer = 0;
+        $this->assert();
+        $this->lex();
+    }
+    
+    /**
+     * Check for a current token.
+     */
+    public function valid(): bool
+    {
+        return null !== key($this->argv);
+    }
+    
+    /**
+     * Return the current token.
+     * 
+     * @throws UnderflowException if no token remains.
+     */
+    public function current(): AbstractToken
+    {
+        if( null !== key($this->buffer) )
+        {
+            return current($this->buffer);
+        }
+        
+        $this->assert();
+        return new ArgumentToken(current($this->argv));
+    }
+    
+    /**
+     * Return the current pointer key.
+     * 
+     * @throws UnderflowException if no token remains.
+     */
+    public function key(): int
+    {
+        $this->assert();
+        return $this->pointer;
+    }
+    
+    /**
+     * Lex next token.
+     * 
+     * @throws UnderflowException if no token remains before lexing.
+     */
+    public function next(): void
+    {
+        if(  null !== key($this->buffer) )
+        {
+            if( false !== next($this->buffer) )
+            {
+                $this->pointer++;
+                return;
+            }
+        }
+        
+        $this->assert();
+        
+        if( false !== next($this->argv) )
+        {
+            $this->lex();
+            $this->pointer++;
+        }
+    }
+    
+    /**
+     * Get current token than lex next one.
+     */
+    public function advance(): AbstractToken
+    {
+        $tok = $this->current();
+        $this->next();
+        return $tok;
+    }
+    
+    private function assert()
+    {
+        if( ! $this->valid() )
+        {
+            throw new UnderflowException("No more tokens available");
+        }
+    }
+    
+    private function lex()
+    {
+        foreach( $this->tokenizers as $tokenizer )
+        {
+            $tokens = $tokenizer->tokenize(current($this->argv));
+            
+            if( ! empty($tokens) )
+            {
+                $this->buffer = $tokens;
+            }
+        }
     }
     
 }

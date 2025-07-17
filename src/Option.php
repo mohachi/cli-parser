@@ -3,26 +3,27 @@
 namespace Mohachi\CliParser;
 
 use Mohachi\CliParser\Exception\InvalidArgumentException;
-use Mohachi\CliParser\TokenQueue;
 use stdClass;
 
 class Option extends Component
 {
     
-    public function __construct(private string $name)
+    public function __construct(readonly string $name, Lexer $lexer)
     {
         if( "" == $name )
         {
             throw new InvalidArgumentException();
         }
+        
+        $this->lexer = $lexer;
     }
     
-    public function parse(TokenQueue $queue): stdClass
+    public function parse(): stdClass
     {
         $option = new stdClass;
         $option->name = $this->name;
-        $option->id = $this->parseId($queue);
-        $option->arguments = $this->parseArguments($queue);
+        $option->id = $this->parseId();
+        $option->arguments = $this->parseArguments();
         return $option;
     }
     

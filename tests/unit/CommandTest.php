@@ -1,6 +1,9 @@
 <?php
 
 use Mohachi\CliParser\Command;
+use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\Lexer;
 use Mohachi\CliParser\Token\ArgumentToken;
 use Mohachi\CliParser\Token\IdToken;
 use Mohachi\CliParser\TokenQueue;
@@ -23,25 +26,23 @@ class CommandTest extends TestCase
     #[Test]
     public function parse_validTokens_returnsCommandStdClassObject()
     {
-        $id1 = new IdToken("cmd");
-        $id2 = new IdToken("--opt");
-        $arg = new ArgumentToken("value");
-        $queue = new TokenQueue;
-        $queue->enqueue($id1);
-        $queue->enqueue($id2);
-        $queue->enqueue($arg);
-        $parser = new Command("cmd");
-        $parser->id($id1);
-        $parser->arg("arg");
-        $parser->opt("opt")
-            ->id($id2);
+        $lexer = new Lexer;
+        $lexer->register(new LongIdTokenizer, "long");
+        $lexer->register(new LiteralIdTokenizer, "literal");
+        $parser = new Command("cmd", $lexer);
+        $parser->id("literal", "cmd")
+            ->arg("arg")
+            ->opt("opt")
+                ->id("long", "--opt");
+        $argv = ["cmd", "--opt", "value"];
         
-        $command = $parser->parse($queue);
+        $command = $parser->parse($argv);
         
-        $this->assertEquals($id1, $command->id);
+        $this->assertEquals("cmd", $command->id);
         $this->assertCount(1, $command->options);
         $this->assertEquals((object) ["arg" => "value"], $command->arguments);
         $this->assertEquals("opt", $command->options[0]->name);
+        $this->assertEquals("--opt", $command->options[0]->id);
     }
     
 }

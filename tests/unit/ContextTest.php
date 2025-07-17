@@ -2,18 +2,23 @@
 
 use Mohachi\CliParser\Context;
 use Mohachi\CliParser\Exception\ParserException;
-use Mohachi\CliParser\Token\ArgumentToken;
-use Mohachi\CliParser\Token\IdToken;
-use Mohachi\CliParser\TokenQueue;
+use Mohachi\CliParser\IdTokenizer\LiteralIdTokenizer;
+use Mohachi\CliParser\IdTokenizer\LongIdTokenizer;
+use Mohachi\CliParser\Lexer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ConcreteContext extends Context
 {
-    public function testParseOptions(TokenQueue $queue)
+    public function __construct(Lexer $lexer)
     {
-        return $this->parseOptions($queue);
+        $this->lexer = $lexer;
+    }
+    
+    public function testParseOptions()
+    {
+        return $this->parseOptions();
     }
 }
 
@@ -21,11 +26,15 @@ class ConcreteContext extends Context
 class ContextTest extends TestCase
 {
     
+    private Lexer $lexer;
     private ConcreteContext $context;
     
     protected function setUp(): void
     {
-        $this->context = new ConcreteContext;
+        $this->lexer = new Lexer;
+        $this->context = new ConcreteContext($this->lexer);
+        $this->lexer->register(new LongIdTokenizer, "long");
+        $this->lexer->register(new LiteralIdTokenizer, "literal");
     }
     
     #[Test]
@@ -53,112 +62,110 @@ class ContextTest extends TestCase
     }
     
     #[Test]
-    public function parseOptions_ofEmptyQueue_returnsEmptyArray()
+    public function parseOptions_ofEmptyLexer_returnsEmptyArray()
     {
-        $this->context->opt("opt")->id(new IdToken("--opt"));
+        $this->context->opt("opt")->id("long", "--opt");
         
-        $options = $this->context->parseOptions(new TokenQueue);
+        $options = $this->context->testParseOptions();
         
         $this->assertEmpty($options);
     }
     
     #[Test]
-    public function parseOptions_ofEmptyParsers_returnsEmptyArrayAndNoTokenConsumption()
+    public function parseOptions_ofEmptyParsers_returnsEmptyArrayAndNoTokenHasConsumed()
     {
-        $id = new IdToken("cmd");
-        $queue = new TokenQueue;
-        $queue->enqueue($id);
+        $id = $this->lexer->get("literal")->create("cmd");
+        $argv = ["cmd"];
+        $this->lexer->consume($argv);
         
-        $options = $this->context->parseOptions($queue);
+        $options = $this->context->testParseOptions();
         
         $this->assertEmpty($options);
-        $this->assertSame($id, $queue->getHead());
+        $this->assertSame($id, $this->lexer->current());
     }
     
     #[Test]
-    public function parseOptions_requiredOptionAgainstEmptyQueue_throwsUnderflowException()
+    public function parseOptions_requiredOptionAgainstEmptyLexer_throwsUnderflowException()
     {
-        $this->context->opt("opt", 1)->id(new IdToken("--opt"));
+        $this->context->opt("opt", 1)->id("long", "--opt");
         
         $this->expectException(UnderflowException::class);
         
-        $this->context->parseOptions(new TokenQueue);
+        $this->context->testParseOptions();
     }
     
     #[Test]
     public function parseOptions_insufficientOptionMin_throwsParserException()
     {
-        $queue = new TokenQueue;
-        $queue->enqueue(new IdToken("extra"));
-        $this->context->opt("opt", 1)->id(new IdToken("--opt"));
+        $this->context->opt("opt", 1)->id("long", "--opt");
+        $this->lexer->get("literal")->create("extra");
+        $argv = ["extra"];
+        $this->lexer->consume($argv);
         
         $this->expectException(ParserException::class);
         
-        $this->context->parseOptions($queue);
+        $this->context->testParseOptions();
     }
     
     #[Test]
     public function parseOptions_ofOverwhelmedOption_returnsArrayOfJustNeededAmountOfOption()
     {
-        $id = new IdToken("--opt");
-        $queue = new TokenQueue;
-        $queue->enqueue($id);
-        $queue->enqueue($id);
-        $this->context->opt("opt", 0, 1)->id($id);
+        $this->context->opt("opt", 0, 1)->id("long", "opt");
+        $id = $this->lexer->get("long")->create("opt");
+        $argv = ["--opt", "--opt"];
+        $this->lexer->consume($argv);
         
-        $options = $this->context->parseOptions($queue);
+        $options = $this->context->testParseOptions();
         
-        $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
+        $this->assertSame($id, $this->lexer->current()); // ensure the token doesn't get dequeued
         $this->assertEquals("opt", $options[0]->name);
+        $this->assertEquals("--opt", $options[0]->id);
     }
     
     #[Test]
     public function parseOptions_ofInvalidIdToken_returnsEmptyArray()
     {
-        $id = new IdToken("unexpected");
-        $queue = new TokenQueue;
-        $queue->enqueue($id);
-        $this->context->opt("opt")->id(new IdToken("expected"));
+        $this->context->opt("opt")->id("literal", "expected");
+        $id = $this->lexer->get("literal")->create("unexpected");
+        $argv = ["unexpected"];
+        $this->lexer->consume($argv);
         
-        $options = $this->context->parseOptions($queue);
+        $options = $this->context->testParseOptions();
         
         $this->assertEmpty($options);
-        $this->assertSame($id, $queue->getHead()); // ensure the token doesn't get dequeued
+        $this->assertSame($id, $this->lexer->current()); // ensure the token doesn't get dequeued
     }
     
     #[Test]
     public function parseOptions_ofInvalidArgumentToken_throwsParserException()
     {
-        $queue = new TokenQueue;
-        $queue->enqueue(new IdToken("--opt"));
-        $queue->enqueue(new IdToken("unexpected"));
         $this->context->opt("opt", 1)
-            ->id(new IdToken("--expected"))
+            ->id("long", "--expected")
             ->arg("arg", fn($v) => $v == "expected");
+        $argv = ["--opt", "unexpected"];
+        $this->lexer->get("long")->create("opt");
+        $this->lexer->get("literal")->create("unexpected");
+        $this->lexer->consume($argv);
         
         $this->expectException(ParserException::class);
         
-        $this->context->parseOptions($queue);
+        $this->context->testParseOptions();
     }
     
     #[Test]
     public function parseOptions_ofValidTokens_returnsArrayOfOptions()
     {
-        $id1 = new IdToken("--num");
-        $arg1 = new ArgumentToken("12");
-        $id2 = new IdToken("--opt");
-        $queue = new TokenQueue;
-        $queue->enqueue($id2);
-        $queue->enqueue($id1);
-        $queue->enqueue($arg1);
-        $queue->enqueue($id2);
         $this->context->opt("num")
-            ->id($id1)
+            ->id("long", "--num")
             ->arg("value", fn(string $v) => is_numeric($v));
         $this->context->opt("opt")
-            ->id($id2);
+            ->id("long", "--opt");
+        $argv = ["--opt", "--num", "12", "--opt"];
+        $this->lexer->get("long")->create("--num");
+        $this->lexer->get("long")->create("--opt");
+        $this->lexer->consume($argv);
         
-        $options = $this->context->parseOptions($queue);
+        $options = $this->context->testParseOptions();
         
         $this->assertCount(3, $options);
         $this->assertEquals("opt", $options[0]->name);

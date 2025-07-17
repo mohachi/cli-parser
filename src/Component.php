@@ -11,24 +11,26 @@ use stdClass;
 abstract class Component
 {
     
+    protected Lexer $lexer;
+    
     /**
-     * @var list<IdToken> $tokens
+     * @var list<IdToken> $idTokens
      */
-    private array $tokens = [];
+    private array $idTokens = [];
     
     /**
      * @var array<string,callable> $arguments
      */
     private array $arguments = [];
     
-    public function id(IdToken $token): self
+    public function id(string $name, string $value): static
     {
-        $this->tokens[] = $token;
+        $this->idTokens[] = $this->lexer->get($name)->create($value);
         
         return $this;
     }
     
-    public function arg(string $name, ?callable $criterion = null): self
+    public function arg(string $name, ?callable $criterion = null): static
     {
         if( "" == $name || isset($this->arguments[$name]) )
         {
@@ -40,33 +42,33 @@ abstract class Component
         return $this;
     }
     
-    public function parseId(TokenQueue $queue):  string
+    protected function parseId():  string
     {
-        if( in_array($queue->getHead(), $this->tokens, true) )
+        if( in_array($this->lexer->current(), $this->idTokens, true) )
         {
-            return (string) $queue->dequeue();
+            return (string) $this->lexer->advance();
         }
         
         throw new ParserException();
     }
     
-    public function parseArguments(TokenQueue $queue): stdClass
+    protected function parseArguments(): stdClass
     {
         $arguments = [];
         
         foreach( $this->arguments as $name => $criterion )
         {
-            if( ! $queue->getHead() instanceof ArgumentToken )
+            if( ! $this->lexer->current() instanceof ArgumentToken )
             {
                 throw new ParserException();
             }
             
-            if( ! call_user_func($criterion, (string) $queue->getHead()) )
+            if( ! call_user_func($criterion, (string) $this->lexer->current()) )
             {
                 throw new ParserException();
             }
             
-            $arguments[$name] = (string) $queue->dequeue();
+            $arguments[$name] = (string) $this->lexer->advance();
         }
         
         return (object) $arguments;
